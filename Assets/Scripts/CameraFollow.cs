@@ -4,6 +4,9 @@ using UnityEngine;
 
 public class CameraFollow : MonoBehaviour
 {
+    [Header("Camera Position Settings")]
+    [SerializeField] private float verticalOffset = 2.5f;
+
     [Header("Screen Shake Settings")]
     [SerializeField] private float shakeDuration = 0.3f;
     [SerializeField] private float shakeMagnitude = 0.3f;
@@ -28,7 +31,7 @@ public class CameraFollow : MonoBehaviour
     {
         Vector3 targetPosition = new Vector3(
             GameController.Instance.player.transform.position.x, 
-            GameController.Instance.player.transform.position.y + 2.5f, 
+            GameController.Instance.player.transform.position.y + verticalOffset, 
             transform.position.z
         );
         

@@ -281,7 +281,7 @@ public class Player : MonoBehaviour
         // Set world position relative to player
         joystickIndicator.position = (Vector2)transform.position + dragDirection * 0.5f;
         // make joystick scale based on drag distance
-        float scale = 0.1f + (currentDragRadius / maxDragDistance) * 5f; // Scale between 0.01 and 0.51
+        float scale = 0.1f + (currentDragRadius / maxDragDistance) * 3.5f; // Scale between 0.01 and 0.51
         joystickIndicator.localScale = new Vector3(scale, scale, 1f);
         
         // Update joystick color based on CanJump
