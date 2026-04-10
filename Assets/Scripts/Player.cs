@@ -30,6 +30,7 @@ public class Player : MonoBehaviour
     private bool isDragging = false;
     private float stableAngularVelocityTimer = 0f;
     private Color joystickOriginalColor;
+    private Vector2 velocityBeforeCollision;
     
     // Start is called before the first frame update
     void Start()
@@ -82,6 +83,23 @@ public class Player : MonoBehaviour
         {
             DrawTrajectory();
             UpdateJoystickVisual();
+        }
+    }
+
+    void FixedUpdate()
+    {
+        // Store velocity before physics
+        velocityBeforeCollision = rb.velocity;
+    }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        //HARD LANDING / CHIP VFX
+        // Check if colliding with Ground tag and velocity was below threshold
+        if (collision.gameObject.CompareTag("Ground") && velocityBeforeCollision.y < -7)
+        {
+            Debug.Log("VFX!");
+            // KHANG PLAY VFX HERE!
         }
     }
 
