@@ -9,13 +9,18 @@ public class CameraFollow : MonoBehaviour
     [SerializeField] private float shakeMagnitude = 0.3f;
     [SerializeField] private float shakeDecay = 1.5f;
     
+    [Header("Parallax Settings")]
+    [SerializeField] private Transform ParallaxBackground;
+    [SerializeField] private float parallaxEffect = 0.5f; // 0 = no movement, 1 = moves with camera
+    
     private Vector3 originalPosition;
     private float currentShakeDuration = 0f;
+    private Vector3 previousCameraPosition;
     
     // Start is called before the first frame update
     void Start()
     {
-        
+        previousCameraPosition = transform.position;
     }
 
     // Update is called once per frame
@@ -23,7 +28,7 @@ public class CameraFollow : MonoBehaviour
     {
         Vector3 targetPosition = new Vector3(
             GameController.Instance.player.transform.position.x, 
-            GameController.Instance.player.transform.position.y, 
+            GameController.Instance.player.transform.position.y + 2.5f, 
             transform.position.z
         );
         
@@ -39,6 +44,16 @@ public class CameraFollow : MonoBehaviour
         {
             transform.position = targetPosition;
         }
+        
+        // Apply parallax effect
+        if (ParallaxBackground != null)
+        {
+            Vector3 cameraDelta = transform.position - previousCameraPosition;
+            Vector3 parallaxOffset = new Vector3(cameraDelta.x * parallaxEffect, cameraDelta.y * parallaxEffect, 0);
+            ParallaxBackground.position += parallaxOffset;
+        }
+        
+        previousCameraPosition = transform.position;
     }
     
     public void TriggerShake()
