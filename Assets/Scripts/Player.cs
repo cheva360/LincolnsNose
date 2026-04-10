@@ -22,6 +22,7 @@ public class Player : MonoBehaviour
     [SerializeField] private SpriteRenderer joystickSpriteRenderer;
     [SerializeField] private Color canJumpColor = Color.white;
     [SerializeField] private Color cannotJumpColor = Color.grey;
+    [SerializeField] private float joystickSnapDuration = 0.1f; // Duration for snap back animation
     
     private Rigidbody2D rb;
     private float currentDragRadius;
@@ -173,9 +174,38 @@ public class Player : MonoBehaviour
             
             if (joystickIndicator != null)
             {
-                joystickIndicator.gameObject.SetActive(false);
+                StartCoroutine(SnapJoystickToNeutral());
             }
         }
+    }
+    
+    private IEnumerator SnapJoystickToNeutral()
+    {
+        Vector2 startPosition = joystickIndicator.position;
+        Vector3 startScale = joystickIndicator.localScale;
+        Vector2 targetPosition = transform.position;
+        Vector3 targetScale = new Vector3(0.01f, 0.01f, 1f);
+        
+        float elapsed = 0f;
+        
+        while (elapsed < joystickSnapDuration)
+        {
+            elapsed += Time.deltaTime;
+            float t = elapsed / joystickSnapDuration;
+            
+            // Smoothly interpolate position and scale
+            joystickIndicator.position = Vector2.Lerp(startPosition, targetPosition, t);
+            joystickIndicator.localScale = Vector3.Lerp(startScale, targetScale, t);
+            
+            yield return null;
+        }
+        
+        // Ensure final values are set
+        joystickIndicator.position = targetPosition;
+        joystickIndicator.localScale = targetScale;
+        
+        // Deactivate joystick
+        joystickIndicator.gameObject.SetActive(false);
     }
     
     private void ApplyForce()
@@ -217,7 +247,7 @@ public class Player : MonoBehaviour
         // Set world position relative to player
         joystickIndicator.position = (Vector2)transform.position + dragDirection * 0.5f;
         // make joystick scale based on drag distance
-        float scale = 0.01f + (currentDragRadius / maxDragDistance) * 1f; // Scale between 0.01 and 0.51
+        float scale = 0.1f + (currentDragRadius / maxDragDistance) * 5f; // Scale between 0.01 and 0.51
         joystickIndicator.localScale = new Vector3(scale, scale, 1f);
         
         // Update joystick color based on CanJump
