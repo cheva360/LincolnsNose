@@ -24,6 +24,10 @@ public class Player : MonoBehaviour
     [SerializeField] private Color cannotJumpColor = Color.grey;
     [SerializeField] private float joystickSnapDuration = 0.1f; // Duration for snap back animation
     
+    [Header("Hard Landing")]
+    [SerializeField] private float hardLandingVelocity = -7f;
+    [SerializeField] private CameraFollow cameraFollow;
+    
     private Rigidbody2D rb;
     private float currentDragRadius;
     private Vector2 dragDirection;
@@ -53,6 +57,12 @@ public class Player : MonoBehaviour
         if (joystickSpriteRenderer != null)
         {
             joystickOriginalColor = joystickSpriteRenderer.color;
+        }
+        
+        // Get CameraFollow if not assigned
+        if (cameraFollow == null)
+        {
+            cameraFollow = Camera.main.GetComponent<CameraFollow>();
         }
         
         // Lock cursor at start
@@ -96,10 +106,16 @@ public class Player : MonoBehaviour
     {
         //HARD LANDING / CHIP VFX
         // Check if colliding with Ground tag and velocity was below threshold
-        if (collision.gameObject.CompareTag("Ground") && velocityBeforeCollision.y < -7)
+        if (collision.gameObject.CompareTag("Ground") && velocityBeforeCollision.y < hardLandingVelocity)
         {
             Debug.Log("VFX!");
             // KHANG PLAY VFX HERE!
+            
+            // Trigger screen shake
+            if (cameraFollow != null)
+            {
+                cameraFollow.TriggerShake();
+            }
         }
     }
 
