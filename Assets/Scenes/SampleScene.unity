@@ -359,7 +359,7 @@ Camera:
   far clip plane: 1000
   field of view: 34
   orthographic: 1
-  orthographic size: 5
+  orthographic size: 8.5
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -402,6 +402,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ab5ba5a6141774c49858bdf5c7a797af, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  verticalOffset: 5
   shakeDuration: 0.3
   shakeMagnitude: 0.3
   shakeDecay: 1.5
@@ -712,8 +713,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c0f8c95fcac99634fbc36a46cdf60254, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  forcePower: 12
-  maxDragDistance: 4
+  forcePower: 15
+  maxDragDistance: 3
   mouseSensitivity: 0.05
   torquePower: 3
   maxAngularVelocity: 0.05
@@ -1240,7 +1241,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!212 &1280977204
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -1302,8 +1303,8 @@ Transform:
   m_GameObject: {fileID: 1280977203}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.62, y: 0.45, z: 0}
-  m_LocalScale: {x: 0.92207533, y: 0.92207533, z: 0.92207533}
+  m_LocalPosition: {x: -5.9, y: 3.9, z: 0}
+  m_LocalScale: {x: 1.7750268, y: 1.7750268, z: 1.7750268}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
