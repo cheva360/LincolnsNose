@@ -10,20 +10,48 @@ public class Player : MonoBehaviour
     [SerializeField] private float mouseSensitivity = 0.1f;
     [SerializeField] private float torquePower = 5f;
     
+    [Header("Jump Settings")]
+    [SerializeField] private float maxAngularVelocity = 0.1f;
+    [SerializeField] private float requiredStableTime = 0.2f; // Time in seconds angular velocity must be stable
+    
     [Header("Visual Feedback")]
     [SerializeField] private LineRenderer trajectoryLine;
     [SerializeField] private int trajectoryPointCount = 20;
     [SerializeField] private Transform joystickIndicator;
+    [SerializeField] private SpriteRenderer spriteRenderer;
+    [SerializeField] private SpriteRenderer joystickSpriteRenderer;
+    [SerializeField] private Color canJumpColor = Color.white;
+    [SerializeField] private Color cannotJumpColor = Color.grey;
     
     private Rigidbody2D rb;
     private float currentDragRadius;
     private Vector2 dragDirection;
     private bool isDragging = false;
+    private float stableAngularVelocityTimer = 0f;
+    private Color joystickOriginalColor;
     
     // Start is called before the first frame update
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
+        
+        // Get SpriteRenderer if not assigned
+        if (spriteRenderer == null)
+        {
+            spriteRenderer = GetComponent<SpriteRenderer>();
+        }
+        
+        // Get joystick SpriteRenderer if not assigned
+        if (joystickIndicator != null && joystickSpriteRenderer == null)
+        {
+            joystickSpriteRenderer = joystickIndicator.GetComponent<SpriteRenderer>();
+        }
+        
+        // Store the original joystick color
+        if (joystickSpriteRenderer != null)
+        {
+            joystickOriginalColor = joystickSpriteRenderer.color;
+        }
         
         // Lock cursor at start
         Cursor.lockState = CursorLockMode.Locked;
@@ -45,6 +73,8 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        UpdateStableTimer();
+        UpdateSpriteColor();
         HandleInput();
         
         if (isDragging)
@@ -53,10 +83,38 @@ public class Player : MonoBehaviour
             UpdateJoystickVisual();
         }
     }
+
+    private void UpdateStableTimer()
+    {
+        // Check if angular velocity is currently below threshold
+        if (Mathf.Abs(rb.angularVelocity) < maxAngularVelocity)
+        {
+            // Increment timer
+            stableAngularVelocityTimer += Time.deltaTime;
+        }
+        else
+        {
+            // Reset timer if angular velocity exceeds threshold
+            stableAngularVelocityTimer = 0f;
+        }
+    }
+    
+    private bool CanJump()
+    {
+        // Check if angular velocity has been stable for required duration
+        return stableAngularVelocityTimer >= requiredStableTime;
+    }
+    
+    private void UpdateSpriteColor()
+    {
+        if (spriteRenderer == null) return;
+        
+        spriteRenderer.color = CanJump() ? canJumpColor : cannotJumpColor;
+    }
     
     private void HandleInput()
     {
-        // Start dragging
+        // Start dragging (always allow, regardless of CanJump)
         if (Input.GetMouseButtonDown(0))
         {
             isDragging = true;
@@ -98,10 +156,14 @@ public class Player : MonoBehaviour
             }
         }
         
-        // Release and apply force
+        // Release and apply force only if can jump
         if (Input.GetMouseButtonUp(0) && isDragging)
         {
-            ApplyForce();
+            if (CanJump())
+            {
+                ApplyForce();
+            }
+            
             isDragging = false;
             
             if (trajectoryLine != null)
@@ -157,6 +219,11 @@ public class Player : MonoBehaviour
         // make joystick scale based on drag distance
         float scale = 0.01f + (currentDragRadius / maxDragDistance) * 1f; // Scale between 0.01 and 0.51
         joystickIndicator.localScale = new Vector3(scale, scale, 1f);
-
+        
+        // Update joystick color based on CanJump
+        if (joystickSpriteRenderer != null)
+        {
+            joystickSpriteRenderer.color = CanJump() ? joystickOriginalColor : cannotJumpColor;
+        }
     }
 }
