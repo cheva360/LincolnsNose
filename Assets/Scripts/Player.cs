@@ -5,6 +5,15 @@ using UnityEngine.VFX;
 
 public class Player : MonoBehaviour
 {
+    // Enum to define player states
+    public enum PlayerState
+    {
+        Normal,
+        TShape,
+        Stack,
+        Kite
+    }
+    
     [Header("Movement Settings")]
     [SerializeField] private float forcePower = 10f;
     [SerializeField] private float maxDragDistance = 3f;
@@ -37,6 +46,10 @@ public class Player : MonoBehaviour
     private float stableAngularVelocityTimer = 0f;
     private Color joystickOriginalColor;
     private Vector2 velocityBeforeCollision;
+    
+    // State Machine Variables
+    private PlayerState currentState = PlayerState.Normal;
+    private PlayerState previousState = PlayerState.Normal;
     
     
     // Start is called before the first frame update
@@ -83,6 +96,9 @@ public class Player : MonoBehaviour
         {
             joystickIndicator.gameObject.SetActive(false);
         }
+        
+        // Initialize state machine
+        EnterState(currentState);
     }
 
     // Update is called once per frame
@@ -90,7 +106,9 @@ public class Player : MonoBehaviour
     {
         UpdateStableTimer();
         UpdateSpriteColor();
-        HandleInput();
+        
+        // State Machine Update
+        UpdateState(currentState);
         
         if (isDragging)
         {
@@ -103,6 +121,9 @@ public class Player : MonoBehaviour
     {
         // Store velocity before physics
         velocityBeforeCollision = rb.velocity;
+        
+        // State Machine Fixed Update
+        FixedUpdateState(currentState);
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
@@ -117,8 +138,92 @@ public class Player : MonoBehaviour
             cameraFollow.TriggerShake();
             // Trigger screen shake
         }
+        
     }
+    
+    // Change state with enter/exit handling
+    public void SetState(PlayerState newState)
+    {
+        if (currentState == newState) return;
+        
+        ExitState(currentState);
+        previousState = currentState;
+        currentState = newState;
+        EnterState(currentState);
+    }
+    
+    // Enter state logic
+    private void EnterState(PlayerState state)
+    {
+        switch (state)
+        {
+            case PlayerState.Normal:
+                break;
+            case PlayerState.TShape:
+                break;
+            case PlayerState.Stack:
+                break;
+            case PlayerState.Kite:
+                break;
+        }
+    }
+    
+    // Exit state logic
+    private void ExitState(PlayerState state)
+    {
+        switch (state)
+        {
+            case PlayerState.Normal:
+                break;
+            case PlayerState.TShape:
+                break;
+            case PlayerState.Stack:
+                break;
+            case PlayerState.Kite:
+                break;
+        }
+    }
+    
+    // Update state logic
+    private void UpdateState(PlayerState state)
+    {
+        switch (state)
+        {
+            case PlayerState.Normal:
+                HandleInput();
+                break;
+            case PlayerState.TShape:
+                HandleInput();
+                break;
+            case PlayerState.Stack:
+                HandleInput();
+                break;
+            case PlayerState.Kite:
+                HandleInput();
+                break;
+        }
+    }
+    
+    // Fixed Update state logic
+    private void FixedUpdateState(PlayerState state)
+    {
+        switch (state)
+        {
+            case PlayerState.Normal:
+                
+                break;
+            case PlayerState.TShape:
 
+                break;
+            case PlayerState.Stack:
+
+                break;
+            case PlayerState.Kite:
+
+                break;
+        }
+    }
+    
     private void UpdateStableTimer()
     {
         // Check if angular velocity is currently below threshold

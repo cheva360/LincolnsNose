@@ -5,6 +5,7 @@ using UnityEngine;
 public class GameController : MonoBehaviour
 {
     public static GameController Instance { get; private set; }
+    public Player playerScript { get; private set; }
 
     public GameObject player;
 
@@ -18,12 +19,14 @@ public class GameController : MonoBehaviour
 
         Instance = this;
         DontDestroyOnLoad(gameObject);
+
     }
 
     // Start is called before the first frame update
     void Start()
     {
-        
+        //set state example
+        //playerScript.SetState(Player.PlayerState.Normal);
     }
 
     // Update is called once per frame
