@@ -22,6 +22,24 @@ public class MainMenu : MonoBehaviour
         _mainMenu.SetActive(true);
         _videoAnimation.SetActive(false);
 
+        ShowMainMenu();
+
+        // subscribe to settings event to close main ui
+        _gameController.ToggleSettingsMenu += OnSettignsToggle;
+    }
+
+    void OnSettignsToggle(bool settingsOn)
+    {
+        // visability of main is opposite of settings
+        _mainMenu.SetActive(!settingsOn);
+        _videoAnimation.SetActive(false);
+    }
+
+    void ShowMainMenu()
+    {
+        // start with video off, main on
+        _mainMenu.SetActive(true);
+        _videoAnimation.SetActive(false);
     }
 
     public void TransitionToVideo()
@@ -30,5 +48,19 @@ public class MainMenu : MonoBehaviour
         _videoAnimation.SetActive(true);
 
         _introPlayer.Play();
+    }
+
+    public void SkipIntro()
+    {
+        // call gamecontroller switch scene action
+    }
+
+    public void OpenSettings()
+    {
+        // hide main menu
+        _mainMenu.SetActive(false);
+
+        // call game controller to open settings
+        _gameController.OpenSettings(true);
     }
 }
