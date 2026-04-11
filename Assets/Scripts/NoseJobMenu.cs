@@ -26,7 +26,10 @@ public class NoseJobMenu : MonoBehaviour
         // call update on gamecontroller
         _noseJob = noseJobInt;
         Debug.Log($"nosejob is now: {_noseJob}");
+    }
 
+    public void ConfirmJob()
+    {
         // use event so that other listeners are called
         _gameController.ToggleNoseJobMenu(false);
     }

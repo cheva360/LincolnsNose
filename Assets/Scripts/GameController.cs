@@ -36,17 +36,11 @@ public class GameController : MonoBehaviour
         ToggleNoseJob?.Invoke(isVisable);
     }
 
-
-    // Start is called before the first frame update
-    void Start()
+    public void SetPlayerNoseJob(int noseJob)
     {
+        Player.PlayerState newstate = (Player.PlayerState)noseJob;
+
         //set state example
-        //playerScript.SetState(Player.PlayerState.Normal);
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+        playerScript.SetState(newstate);
     }
 }
