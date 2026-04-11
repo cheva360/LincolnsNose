@@ -25,8 +25,6 @@ public class Player : MonoBehaviour
     [SerializeField] private float requiredStableTime = 0.2f; // Time in seconds angular velocity must be stable
     
     [Header("Visual Feedback")]
-    [SerializeField] private LineRenderer trajectoryLine;
-    [SerializeField] private int trajectoryPointCount = 20;
     [SerializeField] private Transform joystickIndicator;
     [SerializeField] private SpriteRenderer spriteRenderer;
     [SerializeField] private SpriteRenderer joystickSpriteRenderer;
@@ -38,7 +36,12 @@ public class Player : MonoBehaviour
     [Header("Hard Landing")]
     [SerializeField] private float hardLandingVelocity = -7f;
     [SerializeField] private CameraFollow cameraFollow;
-    
+
+
+    [Header("Audio")]
+    [SerializeField] private AudioClip landSound;
+    private AudioSource audioSource;
+
     private Rigidbody2D rb;
     private float currentDragRadius;
     private Vector2 dragDirection;
@@ -46,6 +49,7 @@ public class Player : MonoBehaviour
     private float stableAngularVelocityTimer = 0f;
     private Color joystickOriginalColor;
     private Vector2 velocityBeforeCollision;
+    private TrailRenderer playerTrail;
     
     // State Machine Variables
     private PlayerState currentState = PlayerState.Normal;
@@ -56,6 +60,10 @@ public class Player : MonoBehaviour
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
+        audioSource = GetComponent<AudioSource>();
+
+        // Get TrailRenderer component
+        playerTrail = GetComponent<TrailRenderer>();
         
         // Get SpriteRenderer if not assigned
         if (spriteRenderer == null)
@@ -85,10 +93,10 @@ public class Player : MonoBehaviour
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
         
-        // Setup trajectory line if available
-        if (trajectoryLine != null)
+        // Setup trail renderer if available
+        if (playerTrail != null)
         {
-            trajectoryLine.enabled = false;
+            playerTrail.emitting = false;
         }
         
         // Hide joystick indicator at start
@@ -106,13 +114,13 @@ public class Player : MonoBehaviour
     {
         UpdateStableTimer();
         UpdateSpriteColor();
+        UpdateTrailRenderer();
         
         // State Machine Update
         UpdateState(currentState);
         
         if (isDragging)
         {
-            DrawTrajectory();
             UpdateJoystickVisual();
         }
     }
@@ -139,6 +147,8 @@ public class Player : MonoBehaviour
             // Use the actual contact point Y position, which already accounts for rotation
             rockVFX.transform.position = new Vector2(transform.position.x, contact.point.y);
             rockVFX.GetComponent<VisualEffect>().Play();
+            audioSource.PlayOneShot(landSound);
+
 
             cameraFollow.TriggerShake();
             // Trigger screen shake
@@ -255,6 +265,14 @@ public class Player : MonoBehaviour
         spriteRenderer.color = CanJump() ? canJumpColor : cannotJumpColor;
     }
     
+    private void UpdateTrailRenderer()
+    {
+        if (playerTrail == null) return;
+        
+        // Enable trail when player cannot jump, disable when they can
+        playerTrail.emitting = !CanJump();
+    }
+    
     private void HandleInput()
     {
         // Start dragging (always allow, regardless of CanJump)
@@ -263,11 +281,6 @@ public class Player : MonoBehaviour
             isDragging = true;
             currentDragRadius = 0f;
             dragDirection = Vector2.zero;
-            
-            if (trajectoryLine != null)
-            {
-                trajectoryLine.enabled = true;
-            }
             
             if (joystickIndicator != null)
             {
@@ -308,11 +321,6 @@ public class Player : MonoBehaviour
             }
             
             isDragging = false;
-            
-            if (trajectoryLine != null)
-            {
-                trajectoryLine.enabled = false;
-            }
             
             if (joystickIndicator != null)
             {
@@ -363,25 +371,6 @@ public class Player : MonoBehaviour
         // Negative torque (counter-clockwise) when force is to the left
         float torque = -forceDirection.x * torquePower;
         rb.AddTorque(torque, ForceMode2D.Impulse);
-    }
-    
-    private void DrawTrajectory()
-    {
-        if (trajectoryLine == null) return;
-        
-        Vector2 forceDirection = -dragDirection * forcePower;
-        
-        trajectoryLine.positionCount = trajectoryPointCount;
-        
-        Vector2 startPosition = transform.position;
-        Vector2 startVelocity = forceDirection / rb.mass;
-        
-        for (int i = 0; i < trajectoryPointCount; i++)
-        {
-            float time = i * 0.1f;
-            Vector2 pointPosition = startPosition + startVelocity * time + 0.5f * Physics2D.gravity * time * time;
-            trajectoryLine.SetPosition(i, pointPosition);
-        }
     }
     
     private void UpdateJoystickVisual()
