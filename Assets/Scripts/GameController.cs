@@ -9,6 +9,11 @@ public class GameController : MonoBehaviour
 
     public GameObject player;
 
+    // use these to toggle the popup and any other actions like audio
+    public delegate void SetBool(bool isState);
+    public event SetBool ToggleNoseJob;
+
+
     void Awake()
     {
         if (Instance != null && Instance != this)
@@ -21,6 +26,16 @@ public class GameController : MonoBehaviour
         DontDestroyOnLoad(gameObject);
 
     }
+
+    /// <summary>
+    /// turn on and off nose job popup menu. 
+    /// isVisable is whether the menu will be set as visable or not (true/false)
+    /// </summary>
+    public void ToggleNoseJobMenu(bool isVisable)
+    {
+        ToggleNoseJob?.Invoke(isVisable);
+    }
+
 
     // Start is called before the first frame update
     void Start()
