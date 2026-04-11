@@ -111,16 +111,11 @@ public class Player : MonoBehaviour
         // Check if colliding with Ground tag and velocity was below threshold
         if (collision.gameObject.CompareTag("Ground") && velocityBeforeCollision.y < hardLandingVelocity)
         {
-            Debug.Log("VFX!");
-            // KHANG PLAY VFX HERE!
             rockVFX.transform.position = new Vector2(transform.position.x, collision.transform.position.y + collision.transform.localScale.y/2); // Adjust Y position for better effect
             rockVFX.GetComponent<VisualEffect>().Play();
 
+            cameraFollow.TriggerShake();
             // Trigger screen shake
-            if (cameraFollow != null)
-            {
-                cameraFollow.TriggerShake();
-            }
         }
     }
 
@@ -147,7 +142,6 @@ public class Player : MonoBehaviour
     
     private void UpdateSpriteColor()
     {
-        if (spriteRenderer == null) return;
         
         spriteRenderer.color = CanJump() ? canJumpColor : cannotJumpColor;
     }
