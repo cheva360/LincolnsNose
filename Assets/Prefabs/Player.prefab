@@ -30,7 +30,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 9204145874510154998}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -5.25, y: -1.64, z: 0}
   m_LocalScale: {x: 4.5278506, y: 4.5278506, z: 4.5278506}
   m_ConstrainProportionsScale: 0
@@ -101,8 +101,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c0f8c95fcac99634fbc36a46cdf60254, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  forcePower: 18
-  maxDragDistance: 3
+  forcePower: 15
+  maxDragDistance: 4
   mouseSensitivity: 0.05
   torquePower: 4
   maxAngularVelocity: 0.05
@@ -116,7 +116,9 @@ MonoBehaviour:
   rockVFX: {fileID: 0}
   hardLandingVelocity: -7
   cameraFollow: {fileID: 0}
+  softLandingAngularVelocity: 150
   landSound: {fileID: 8300000, guid: e0b2058032e36ec4f8210f7391bb0bbb, type: 3}
+  softLandSound: {fileID: 8300000, guid: e7d4bbf8ebf5954468cbb9252d092828, type: 3}
 --- !u!50 &3521636352751648616
 Rigidbody2D:
   serializedVersion: 4
