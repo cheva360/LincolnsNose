@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class NoseJobMenu : MonoBehaviour
 {
-    private GameController _gameController = GameController.Instance;
+    private GameController _gameController;
     [SerializeField] private GameObject _noseJobPanel; 
 
     // store the nose state untill confirm sent
@@ -12,11 +12,13 @@ public class NoseJobMenu : MonoBehaviour
 
     void Start()
     {
+        _gameController = GameController.Instance;
+
         // subscribe to ui event
-        _gameController.ToggleNoseJob += ToggleNoseJobMenu;
+        _gameController.ToggleNoseJob += ToggleVisability;
     }
 
-    public void ToggleNoseJobMenu(bool isVisable)
+    public void ToggleVisability(bool isVisable)
     {
         _noseJobPanel.SetActive(isVisable);
     }
@@ -30,6 +32,9 @@ public class NoseJobMenu : MonoBehaviour
 
     public void ConfirmJob()
     {
+        // update player
+        _gameController.SetPlayerNoseJob(_noseJob);
+
         // use event so that other listeners are called
         _gameController.ToggleNoseJobMenu(false);
     }

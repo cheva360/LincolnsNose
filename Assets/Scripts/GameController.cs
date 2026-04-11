@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
 public class GameController : MonoBehaviour
@@ -27,20 +28,35 @@ public class GameController : MonoBehaviour
 
     }
 
+    public void ToggleMouseLock(bool isLocked)
+    {
+        if (isLocked)
+        {
+            Cursor.lockState = CursorLockMode.Locked;
+        }
+        else
+        {
+            Cursor.lockState = CursorLockMode.None;
+        }
+    }
+
     /// <summary>
     /// turn on and off nose job popup menu. 
     /// isVisable is whether the menu will be set as visable or not (true/false)
     /// </summary>
     public void ToggleNoseJobMenu(bool isVisable)
     {
+        Debug.Log("toggling menu " + (isVisable? "off" : "on"));
         ToggleNoseJob?.Invoke(isVisable);
+        ToggleMouseLock(isVisable);
     }
 
     public void SetPlayerNoseJob(int noseJob)
     {
-        Player.PlayerState newstate = (Player.PlayerState)noseJob;
+        Debug.Log("setting player state");
 
-        //set state example
+        // set state on player from supplied int
+        Player.PlayerState newstate = (Player.PlayerState)noseJob;
         playerScript.SetState(newstate);
     }
 }
