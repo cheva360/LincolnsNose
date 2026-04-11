@@ -129,16 +129,20 @@ public class Player : MonoBehaviour
     private void OnCollisionEnter2D(Collision2D collision)
     {
         //HARD LANDING / CHIP VFX
-        // Check if colliding with Ground tag and velocity was below threshold
-        if (collision.gameObject.CompareTag("Ground") && velocityBeforeCollision.y < hardLandingVelocity)
+        // Check if colliding with Ground tag and velocity (vertical OR horizontal) was above threshold
+        if (collision.gameObject.CompareTag("Ground") && 
+            (velocityBeforeCollision.y < hardLandingVelocity || Mathf.Abs(velocityBeforeCollision.x) > Mathf.Abs(hardLandingVelocity)))
         {
-            rockVFX.transform.position = new Vector2(transform.position.x, collision.transform.position.y + collision.transform.localScale.y/2); // Adjust Y position for better effect
+            // Get the contact point for accurate positioning
+            ContactPoint2D contact = collision.GetContact(0);
+            
+            // Use the actual contact point Y position, which already accounts for rotation
+            rockVFX.transform.position = new Vector2(transform.position.x, contact.point.y);
             rockVFX.GetComponent<VisualEffect>().Play();
 
             cameraFollow.TriggerShake();
             // Trigger screen shake
         }
-        
     }
     
     // Change state with enter/exit handling
