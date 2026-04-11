@@ -2449,10 +2449,6 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 536133884}
     - target: {fileID: 2607429714688643043, guid: 0f91fe4e5daa5c8499dad61c7fd26d78, type: 3}
-      propertyPath: maxAngularVelocity
-      value: 250
-      objectReference: {fileID: 0}
-    - target: {fileID: 2607429714688643043, guid: 0f91fe4e5daa5c8499dad61c7fd26d78, type: 3}
       propertyPath: joystickSpriteRenderer
       value: 
       objectReference: {fileID: 536133885}
