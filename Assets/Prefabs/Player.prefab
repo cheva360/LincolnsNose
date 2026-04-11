@@ -116,6 +116,7 @@ MonoBehaviour:
   rockVFX: {fileID: 0}
   hardLandingVelocity: -7
   cameraFollow: {fileID: 0}
+  softLandingAngularVelocity: 150
   landSound: {fileID: 8300000, guid: e0b2058032e36ec4f8210f7391bb0bbb, type: 3}
   softLandSound: {fileID: 8300000, guid: e7d4bbf8ebf5954468cbb9252d092828, type: 3}
 --- !u!50 &3521636352751648616

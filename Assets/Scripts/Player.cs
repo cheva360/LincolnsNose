@@ -37,7 +37,8 @@ public class Player : MonoBehaviour
     [SerializeField] private float hardLandingVelocity = -7f;
     [SerializeField] private CameraFollow cameraFollow;
 
-
+    [Header("Soft Landing")]
+    [SerializeField] private float softLandingAngularVelocity = 50f; // Angular velocity threshold for soft landing
     [Header("Audio")]
     [SerializeField] private AudioClip landSound;
     [SerializeField] private AudioClip softLandSound;
@@ -50,6 +51,7 @@ public class Player : MonoBehaviour
     private float stableAngularVelocityTimer = 0f;
     private Color joystickOriginalColor;
     private Vector2 velocityBeforeCollision;
+    private float angularVelocityBeforeCollision;
     private TrailRenderer playerTrail;
     
     // State Machine Variables
@@ -128,8 +130,9 @@ public class Player : MonoBehaviour
 
     void FixedUpdate()
     {
-        // Store velocity before physics
+        // Store velocity and angular velocity before physics
         velocityBeforeCollision = rb.velocity;
+        angularVelocityBeforeCollision = rb.angularVelocity;
         
         // State Machine Fixed Update
         FixedUpdateState(currentState);
@@ -137,10 +140,12 @@ public class Player : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        //HARD LANDING / CHIP VFX
-        // Check if colliding with Ground tag and velocity (vertical OR horizontal) was above threshold
+        // Check if colliding with Ground tag
         if (collision.gameObject.CompareTag("Ground"))
         {
+            
+            // HARD LANDING / CHIP VFX
+            // Check if velocity (vertical OR horizontal) was above threshold
             if (velocityBeforeCollision.y < hardLandingVelocity || Mathf.Abs(velocityBeforeCollision.x) > Mathf.Abs(hardLandingVelocity))
             {
                 // Get the contact point for accurate positioning
@@ -149,18 +154,19 @@ public class Player : MonoBehaviour
                 // Use the actual contact point Y position, which already accounts for rotation
                 rockVFX.transform.position = new Vector2(transform.position.x, contact.point.y);
                 rockVFX.GetComponent<VisualEffect>().Play();
-                //audioSource.PlayOneShot(landSound);
-
+                audioSource.PlayOneShot(landSound);
 
                 cameraFollow.TriggerShake();
-                // Trigger screen shake
+                
             }
 
-            else
+            // SOFT LAND VFX
+            // Only check for soft landing if it wasn't a hard landing
+            else if (Mathf.Abs(angularVelocityBeforeCollision) > (Mathf.Abs(softLandingAngularVelocity)))
             {
-                // softer landing sfx
+                Debug.Log("Soft landing detected with angular velocity: " + angularVelocityBeforeCollision + "soft landing" + softLandingAngularVelocity);
+                // Play soft land sound
                 audioSource.PlayOneShot(softLandSound);
-
             }
         }
     }
