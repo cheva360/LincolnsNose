@@ -13,12 +13,12 @@ public class NoseJobMenu : MonoBehaviour
     void Start()
     {
         // subscribe to ui event
-        //_gameController.ToggleNoseJob? += ToggleNoseJobMenu;
+        _gameController.ToggleNoseJob += ToggleNoseJobMenu;
     }
 
-    public void ToggleNoseJobMenu()
+    public void ToggleNoseJobMenu(bool isVisable)
     {
-        
+        _noseJobPanel.SetActive(isVisable);
     }
 
     public void SetNoseJob(int noseJobInt)
@@ -26,6 +26,9 @@ public class NoseJobMenu : MonoBehaviour
         // call update on gamecontroller
         _noseJob = noseJobInt;
         Debug.Log($"nosejob is now: {_noseJob}");
+
+        // use event so that other listeners are called
+        _gameController.ToggleNoseJobMenu(false);
     }
 
 }
