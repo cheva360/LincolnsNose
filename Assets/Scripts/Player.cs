@@ -40,6 +40,7 @@ public class Player : MonoBehaviour
 
     [Header("Audio")]
     [SerializeField] private AudioClip landSound;
+    [SerializeField] private AudioClip softLandSound;
     private AudioSource audioSource;
 
     private Rigidbody2D rb;
@@ -138,20 +139,29 @@ public class Player : MonoBehaviour
     {
         //HARD LANDING / CHIP VFX
         // Check if colliding with Ground tag and velocity (vertical OR horizontal) was above threshold
-        if (collision.gameObject.CompareTag("Ground") && 
-            (velocityBeforeCollision.y < hardLandingVelocity || Mathf.Abs(velocityBeforeCollision.x) > Mathf.Abs(hardLandingVelocity)))
+        if (collision.gameObject.CompareTag("Ground"))
         {
-            // Get the contact point for accurate positioning
-            ContactPoint2D contact = collision.GetContact(0);
-            
-            // Use the actual contact point Y position, which already accounts for rotation
-            rockVFX.transform.position = new Vector2(transform.position.x, contact.point.y);
-            rockVFX.GetComponent<VisualEffect>().Play();
-            audioSource.PlayOneShot(landSound);
+            if (velocityBeforeCollision.y < hardLandingVelocity || Mathf.Abs(velocityBeforeCollision.x) > Mathf.Abs(hardLandingVelocity))
+            {
+                // Get the contact point for accurate positioning
+                ContactPoint2D contact = collision.GetContact(0);
+
+                // Use the actual contact point Y position, which already accounts for rotation
+                rockVFX.transform.position = new Vector2(transform.position.x, contact.point.y);
+                rockVFX.GetComponent<VisualEffect>().Play();
+                //audioSource.PlayOneShot(landSound);
 
 
-            cameraFollow.TriggerShake();
-            // Trigger screen shake
+                cameraFollow.TriggerShake();
+                // Trigger screen shake
+            }
+
+            else
+            {
+                // softer landing sfx
+                audioSource.PlayOneShot(softLandSound);
+
+            }
         }
     }
     
