@@ -727,6 +727,7 @@ MonoBehaviour:
   canJumpColor: {r: 1, g: 1, b: 1, a: 1}
   cannotJumpColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
   joystickSnapDuration: 0.1
+  rockVFX: {fileID: 1680532703}
   hardLandingVelocity: -7
   cameraFollow: {fileID: 0}
 --- !u!60 &626480679

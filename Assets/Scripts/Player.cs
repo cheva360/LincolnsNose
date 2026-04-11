@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.VFX;
 
 public class Player : MonoBehaviour
 {
@@ -23,6 +24,7 @@ public class Player : MonoBehaviour
     [SerializeField] private Color canJumpColor = Color.white;
     [SerializeField] private Color cannotJumpColor = Color.grey;
     [SerializeField] private float joystickSnapDuration = 0.1f; // Duration for snap back animation
+    [SerializeField] private GameObject rockVFX;
     
     [Header("Hard Landing")]
     [SerializeField] private float hardLandingVelocity = -7f;
@@ -35,6 +37,7 @@ public class Player : MonoBehaviour
     private float stableAngularVelocityTimer = 0f;
     private Color joystickOriginalColor;
     private Vector2 velocityBeforeCollision;
+    
     
     // Start is called before the first frame update
     void Start()
@@ -110,7 +113,9 @@ public class Player : MonoBehaviour
         {
             Debug.Log("VFX!");
             // KHANG PLAY VFX HERE!
-            
+            rockVFX.transform.position = new Vector2(transform.position.x, collision.transform.position.y + collision.transform.localScale.y/2); // Adjust Y position for better effect
+            rockVFX.GetComponent<VisualEffect>().Play();
+
             // Trigger screen shake
             if (cameraFollow != null)
             {
