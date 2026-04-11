@@ -48,11 +48,14 @@ public class MainMenu : MonoBehaviour
         _videoAnimation.SetActive(true);
 
         _introPlayer.Play();
+
+        _gameController.GotoLevelScene(17f);
     }
 
     public void SkipIntro()
     {
         // call gamecontroller switch scene action
+        _gameController.GotoLevelScene(0.1f);
     }
 
     public void OpenSettings()
