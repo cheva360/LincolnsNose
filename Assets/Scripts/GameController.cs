@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameController : MonoBehaviour
 {
@@ -12,9 +13,17 @@ public class GameController : MonoBehaviour
 
     // use these to toggle the popup and any other actions like audio
     public delegate void SetBool(bool isState);
+    public delegate void Trigger();
     public event SetBool ToggleNoseJob;
 
     public event SetBool ToggleSettingsMenu;
+
+
+    // settings for scene changing
+    [SerializeField] private int _mainMenuSceneID = 0;
+    [SerializeField] private int _levelSceneID = 1;
+    public event Trigger SceneChangeTrigger;
+
 
     void Awake()
     {
@@ -78,4 +87,28 @@ public class GameController : MonoBehaviour
         ToggleSettingsMenu?.Invoke(isVisable);
         //ToggleMouseLock(!isVisable);
     }
+
+    public void GotoLevelScene(float delay)
+    {
+        SceneChangeTrigger?.Invoke();
+        // call scene change on delay
+        StartCoroutine(ChangeScene(delay, _levelSceneID));
+    }
+
+    public void GotoMenuScene(float delay)
+    {
+        SceneChangeTrigger?.Invoke();
+        // call scene change on delay
+        StartCoroutine(ChangeScene(delay, _mainMenuSceneID));
+    }
+
+    private IEnumerator ChangeScene(float waitTime, int sceneID)
+    {
+        // call on delay to allow other code to finish executing
+        yield return new WaitForSeconds(waitTime);
+
+        // change scene on exit
+        SceneManager.LoadScene(sceneID);
+    }
+
 }
