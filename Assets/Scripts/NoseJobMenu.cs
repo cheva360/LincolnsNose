@@ -6,6 +6,10 @@ using UnityEngine;
 public class NoseJobMenu : MonoBehaviour
 {
     private GameController _gameController;
+    [Header("Settings")]
+    [SerializeField] private float timeTillMenuClose = 0.5f; // time after placing nose to close menu, allows player to see result before menu closes
+
+    [Header("UI")]
     [SerializeField] private GameObject _noseJobPanel; 
 
     // store the nose state untill confirm sent
@@ -61,8 +65,12 @@ public class NoseJobMenu : MonoBehaviour
 
     public void ConfirmJob()
     {
-        // update player
-        _gameController.SetPlayerNoseJob(_noseJob);
+        // Only allow transformation if a nose job was selected
+        if (_noseJob > 0)
+        {
+            // update player state
+            _gameController.SetPlayerNoseJob(_noseJob);
+        }
 
         // use event so that other listeners are called
         _gameController.ToggleNoseJobMenu(false);
@@ -105,6 +113,9 @@ public class NoseJobMenu : MonoBehaviour
             nose.position = _activeAnchor;
             _finished = true;
             _noseJob = _rotState + 1;
+            
+            // Auto-close and confirm after delay
+            StartCoroutine(AutoConfirmAfterDelay());
         }
         else
         {
@@ -118,6 +129,12 @@ public class NoseJobMenu : MonoBehaviour
         // snap to finished rotation
         _noseRotation = _targetRotation;
         _dragNose.eulerAngles = new Vector3(0, 0, _noseRotation);
+    }
+
+    private IEnumerator AutoConfirmAfterDelay()
+    {
+        yield return new WaitForSeconds(timeTillMenuClose);
+        ConfirmJob();
     }
 
 }
