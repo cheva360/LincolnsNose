@@ -18,13 +18,6 @@ public class PlayerAnimationEvents : MonoBehaviour
         }
     }
 
-    public void BeginTransformationLerp()
-    {
-        if (player != null)
-        {
-            player.BeginTransformationLerp();
-        }
-    }
 
     public void FinishTransformation()
     {
