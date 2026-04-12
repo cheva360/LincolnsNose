@@ -273,6 +273,7 @@ MonoBehaviour:
   torquePower: 4
   washingtonTransform: {fileID: 0}
   washingtonSpriteRenderer: {fileID: 0}
+  menuCooldownTime: 2
   maxAngularVelocity: 0.1
   requiredStableTime: 0.2
   stackChargeRate: 30
@@ -284,7 +285,7 @@ MonoBehaviour:
   tShapeChargeRate: 5
   tShapeMaxCharge: 10
   tShapeForcePower: 5
-  tShapeTorquePower: 20
+  tShapeTorquePower: 35
   tShapeBreakRadius: 1
   joystickIndicator: {fileID: 0}
   spriteRenderer: {fileID: 2585736138546387381}

@@ -26,7 +26,13 @@ public class Player : MonoBehaviour
     [Header("Washington")]
     [SerializeField] private Transform washingtonTransform;
     [SerializeField] private SpriteRenderer washingtonSpriteRenderer;
+    [SerializeField] private float menuCooldownTime = 2f; // Time in seconds before menu can be opened again
     private bool isCollidingWithWashington = false;
+    private float menuCooldownTimer = 0f;
+    private bool canOpenMenu = true;
+    private bool isNoseJobMenuActive = false; // Track if nose job menu is open
+    private Vector2 frozenVelocity;
+    private float frozenAngularVelocity;
 
     [Header("Jump Settings")]
     [SerializeField] private float maxAngularVelocity = 0.1f;
@@ -175,12 +181,80 @@ public class Player : MonoBehaviour
         if (GameController.Instance != null)
         {
             GameController.Instance.RegisterPlayer(this);
+            // Subscribe to nose job menu events
+            GameController.Instance.ToggleNoseJob += OnNoseJobMenuToggle;
         }
+    }
+
+    void OnDestroy()
+    {
+        // Unsubscribe from events
+        if (GameController.Instance != null)
+        {
+            GameController.Instance.ToggleNoseJob -= OnNoseJobMenuToggle;
+        }
+    }
+
+    // Called when nose job menu opens or closes
+    private void OnNoseJobMenuToggle(bool isOpen)
+    {
+        isNoseJobMenuActive = isOpen;
+        
+        if (isOpen)
+        {
+            // Freeze player physics
+            FreezePlayer();
+        }
+        else
+        {
+            // Unfreeze player physics
+            UnfreezePlayer();
+        }
+    }
+
+    private void FreezePlayer()
+    {
+        // Store current velocities
+        frozenVelocity = rb.velocity;
+        frozenAngularVelocity = rb.angularVelocity;
+        
+        // Freeze all physics
+        rb.bodyType = RigidbodyType2D.Static;
+        
+        // Cancel any ongoing drag
+        if (isDragging)
+        {
+            isDragging = false;
+            if (joystickIndicator != null)
+            {
+                joystickIndicator.gameObject.SetActive(false);
+            }
+        }
+        
+        Debug.Log("Player frozen for nose job menu");
+    }
+
+    private void UnfreezePlayer()
+    {
+        // Restore physics
+        rb.bodyType = RigidbodyType2D.Dynamic;
+        
+        // Restore velocities (set to zero for clean state after nose job)
+        rb.velocity = Vector2.zero;
+        rb.angularVelocity = 0f;
+        
+        Debug.Log("Player unfrozen after nose job menu");
     }
 
     // Update is called once per frame
     void Update()
     {
+        // Don't process input while nose job menu is active
+        if (isNoseJobMenuActive)
+        {
+            return;
+        }
+        
         // Check if state changed in inspector during runtime
         if (playerState != currentState)
         {
@@ -190,6 +264,7 @@ public class Player : MonoBehaviour
         UpdateStableTimer();
         UpdateSpriteColor();
         UpdateTrailRenderer();
+        UpdateMenuCooldown();
         
         // Handle transformation lerp in Update
         if (isTransforming)
@@ -197,16 +272,6 @@ public class Player : MonoBehaviour
             UpdateTransformationLerp();
         }
         
-        // Safety check: if waiting too long for animation event, force the lerp to start
-        if (waitingForLerpToStart)
-        {
-            transformationWaitTimer += Time.deltaTime;
-            if (transformationWaitTimer >= maxTransformationWaitTime)
-            {
-                Debug.LogWarning("Transformation animation event didn't fire in time. Forcing lerp to start.");
-                BeginTransformationLerp();
-            }
-        }
         
         // Handle right-click to release Washington (only when attached as child)
         if (Input.GetMouseButtonDown(1) && washingtonTransform != null && washingtonTransform.parent == transform)
@@ -225,6 +290,12 @@ public class Player : MonoBehaviour
 
     void FixedUpdate()
     {
+        // Don't process physics while nose job menu is active
+        if (isNoseJobMenuActive)
+        {
+            return;
+        }
+        
         // Store velocity and angular velocity before physics
         velocityBeforeCollision = rb.velocity;
         angularVelocityBeforeCollision = rb.angularVelocity;
@@ -252,6 +323,21 @@ public class Player : MonoBehaviour
     public void OnWashingtonCollisionExit(Collision2D collision)
     {
         HandleCollisionExit(collision, false);
+    }
+    
+    private void UpdateMenuCooldown()
+    {
+        // Countdown the cooldown timer
+        if (!canOpenMenu)
+        {
+            menuCooldownTimer -= Time.deltaTime;
+            
+            if (menuCooldownTimer <= 0f)
+            {
+                canOpenMenu = true;
+                menuCooldownTimer = 0f;
+            }
+        }
     }
     
     private void HandleCollisionEnter(Collision2D collision, bool isPlayerCollider)
@@ -297,11 +383,11 @@ public class Player : MonoBehaviour
 
         // Check for Washington collision - ONLY when player's collider detects it
         // This prevents duplicate detection from WashingtonCollider script
-        if (isPlayerCollider && collision.gameObject.CompareTag("Washington") && currentState == PlayerState.Normal)
+        if (isPlayerCollider && collision.gameObject.CompareTag("Washington") && currentState == PlayerState.Normal && canOpenMenu)
         {
             isCollidingWithWashington = true;
-            Debug.Log("Player collided with Washington! Opening menu...");
-            // Open nose job menu
+            Debug.Log("Player collided with Washington! Opening menu and freezing player...");
+            // Open nose job menu (this will trigger FreezePlayer via event)
             if (GameController.Instance != null)
             {
                 GameController.Instance.ToggleNoseJobMenu(true);
@@ -357,16 +443,6 @@ public class Player : MonoBehaviour
     {
         if (currentState == newState) return;
         
-        // Only allow transformation if in Normal state and colliding with Washington
-        if (currentState == PlayerState.Normal && newState != PlayerState.Normal)
-        {
-            if (!isCollidingWithWashington)
-            {
-                Debug.LogWarning("Cannot transform: Not colliding with Washington!");
-                return;
-            }
-        }
-        
         ExitState(currentState);
         previousState = currentState;
         currentState = newState;
@@ -384,14 +460,9 @@ public class Player : MonoBehaviour
         // Detach Washington from player
         washingtonTransform.SetParent(null);
 
-        // Enable Washington's rigidbody if it has one
-        Rigidbody2D washingtonRb = washingtonTransform.GetComponent<Rigidbody2D>();
-        if (washingtonRb != null)
-        {
-            washingtonRb.simulated = true;
-            // Optionally give it some velocity based on player's current velocity
-            washingtonRb.velocity = rb.velocity * 0.5f;
-        }
+        // Start cooldown timer
+        canOpenMenu = false;
+        menuCooldownTimer = menuCooldownTime;
 
         // Return to Normal state
         SetState(PlayerState.Normal);
@@ -419,31 +490,15 @@ public class Player : MonoBehaviour
     // Start transformation sequence: Freeze physics, reset rotation, play animation, then lerp position up
     private void StartTransformation()
     {
-        Debug.Log("StartTransformation called");
+        //Debug.Log("StartTransformation called");
         
         // Disable player collider during transformation
-        if (playerCollider != null)
-        {
-            playerCollider.enabled = false;
-        }
-        
-        // Deactivate Washington and play rock VFX at his position
-        if (washingtonTransform != null)
-        {
-            // Play rock VFX at Washington's position
-            if (landingVFX != null)
-            {
-                landingVFX.transform.position = washingtonTransform.position;
-                VisualEffect vfx = landingVFX.GetComponent<VisualEffect>();
-                if (vfx != null)
-                {
-                    vfx.SendEvent("OnLand");
-                }
-            }
-            
-            // Deactivate Washington
-            washingtonTransform.gameObject.SetActive(false);
-        }
+
+        playerCollider.enabled = false;
+        landingVFX.transform.position = washingtonTransform.position;
+        VisualEffect vfx = landingVFX.GetComponent<VisualEffect>();
+        vfx.SendEvent("OnLand");
+        washingtonTransform.gameObject.SetActive(false);
         
         // Disable gravity and freeze rotation during transformation
         rb.gravityScale = 0f;
@@ -466,16 +521,11 @@ public class Player : MonoBehaviour
         transformationTimer = 0f;
         waitingForLerpToStart = false;
         
-        Debug.Log($"Transformation started at position {transformationStartPosition}, target: {transformationTargetPosition}");
+        //Debug.Log($"Transformation started at position {transformationStartPosition}, target: {transformationTargetPosition}");
     }
 
     // Called by animation event to begin the Y lerp after animation finishes
     // THIS METHOD IS NO LONGER NEEDED if you want lerp during animation
-    public void BeginTransformationLerp()
-    {
-        // This can be removed or kept as a safety/debugging method
-        Debug.Log("BeginTransformationLerp called (animation event)");
-    }
     
     // Update transformation position lerp
     private void UpdateTransformationLerp()
@@ -549,22 +599,15 @@ public class Player : MonoBehaviour
     
     // Attach Washington as child and position based on current state
     private void AttachWashington()
-    {
-        if (washingtonTransform == null) return;
-        
+    {        
         // Activate Washington before setting position
         washingtonTransform.gameObject.SetActive(true);
         
         // Set Washington as child of player
         washingtonTransform.SetParent(transform);
 
-        // Disable Washington's rigidbody while attached
-        Rigidbody2D washingtonRb = washingtonTransform.GetComponent<Rigidbody2D>();
-        if (washingtonRb != null)
-        {
-            washingtonRb.simulated = false;
-        }
-        
+
+
         // Set local position and rotation based on current state
         switch (currentState)
         {
@@ -602,12 +645,7 @@ public class Player : MonoBehaviour
                 {
                     washingtonTransform.SetParent(null);
 
-                    // Re-enable Washington's rigidbody
-                    Rigidbody2D washingtonRb = washingtonTransform.GetComponent<Rigidbody2D>();
-                    if (washingtonRb != null)
-                    {
-                        washingtonRb.simulated = true;
-                    }
+
                 }
                 break;
         }
