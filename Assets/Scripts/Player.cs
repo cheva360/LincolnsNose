@@ -52,7 +52,10 @@ public class Player : MonoBehaviour
     [SerializeField] private Color cannotJumpColor = Color.grey;
     [SerializeField] private float joystickSnapDuration = 0.1f; // Duration for snap back animation
     [SerializeField] private GameObject rockVFX;
-    
+
+    [Header("Animator")]
+    [SerializeField] private Animator animator;
+
     [Header("Hard Landing")]
     [SerializeField] private float hardLandingVelocity = -7f;
     [SerializeField] private CameraFollow cameraFollow;
@@ -94,11 +97,6 @@ public class Player : MonoBehaviour
         // Get TrailRenderer component
         playerTrail = GetComponent<TrailRenderer>();
         
-        // Get SpriteRenderer if not assigned
-        if (spriteRenderer == null)
-        {
-            spriteRenderer = GetComponent<SpriteRenderer>();
-        }
         
         // Get joystick SpriteRenderer if not assigned
         if (joystickIndicator != null && joystickSpriteRenderer == null)
@@ -229,6 +227,9 @@ public class Player : MonoBehaviour
     // Enter state logic
     private void EnterState(PlayerState state)
     {
+        // Trigger transformation animation for any state change
+        animator.SetTrigger("Transformation");
+
         switch (state)
         {
             case PlayerState.Normal:
