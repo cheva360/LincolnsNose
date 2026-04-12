@@ -28,6 +28,23 @@ public class NoseJobMenu : MonoBehaviour
 
     }
 
+    void Update()
+    {
+        if (_targetRotation < _noseRotation)
+        {
+            _noseRotation -= _rotTweenSpeed * Time.deltaTime;
+
+            if (_targetRotation >= _noseRotation)
+            {
+                _noseRotation = _targetRotation;
+            }
+
+            _secondNose.eulerAngles = new Vector3(0, 0, _noseRotation);
+        }
+
+            
+    }
+
     public void ToggleVisability(bool isVisable)
     {
         _noseJobPanel.SetActive(isVisable);
@@ -54,12 +71,13 @@ public class NoseJobMenu : MonoBehaviour
         _targetRotation -= 90;
 
         // skip 270 rotation:
-        if (_targetRotation <= -270)
+        if (_targetRotation % 360 <= -270)
         {
-            _targetRotation = 0f;
+            // rotate again
+            _targetRotation -= 90;
         }
 
         // update transform rotation
-        _secondNose.eulerAngles = new Vector3(0, 0, _targetRotation);
+        //_secondNose.eulerAngles = new Vector3(0, 0, _targetRotation);
     }
 }

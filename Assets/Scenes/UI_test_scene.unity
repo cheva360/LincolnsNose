@@ -1495,6 +1495,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1438647800}
     - target: {fileID: 1356592135666681872, guid: 4ce60cda2cc12bf48be773e496cdbc15, type: 3}
+      propertyPath: _rotTweenSpeed
+      value: 400
+      objectReference: {fileID: 0}
+    - target: {fileID: 1356592135666681872, guid: 4ce60cda2cc12bf48be773e496cdbc15, type: 3}
       propertyPath: _topAttachmentpoint
       value: 
       objectReference: {fileID: 1276432702}
