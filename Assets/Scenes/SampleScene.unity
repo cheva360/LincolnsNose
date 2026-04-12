@@ -7828,22 +7828,6 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3935837015093416928, guid: b459bb9aa293f7a42b8699ebae36f309, type: 3}
-      propertyPath: maxZoomin
-      value: 7
-      objectReference: {fileID: 0}
-    - target: {fileID: 3935837015093416928, guid: b459bb9aa293f7a42b8699ebae36f309, type: 3}
-      propertyPath: zoomSpeed
-      value: 7
-      objectReference: {fileID: 0}
-    - target: {fileID: 3935837015093416928, guid: b459bb9aa293f7a42b8699ebae36f309, type: 3}
-      propertyPath: parallaxEffect
-      value: 0.95
-      objectReference: {fileID: 0}
-    - target: {fileID: 3935837015093416928, guid: b459bb9aa293f7a42b8699ebae36f309, type: 3}
-      propertyPath: verticalOffset
-      value: 3.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 3935837015093416928, guid: b459bb9aa293f7a42b8699ebae36f309, type: 3}
       propertyPath: ParallaxBackground
       value: 
       objectReference: {fileID: 1365744477}
