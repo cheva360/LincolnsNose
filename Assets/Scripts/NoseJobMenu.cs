@@ -113,9 +113,6 @@ public class NoseJobMenu : MonoBehaviour
             nose.position = _activeAnchor;
             _finished = true;
             _noseJob = _rotState + 1;
-            
-            // Auto-close and confirm after delay
-            StartCoroutine(AutoConfirmAfterDelay());
         }
         else
         {
@@ -129,6 +126,11 @@ public class NoseJobMenu : MonoBehaviour
         // snap to finished rotation
         _noseRotation = _targetRotation;
         _dragNose.eulerAngles = new Vector3(0, 0, _noseRotation);
+    }
+
+    public void ConfirmWithDelay()
+    {
+        StartCoroutine(AutoConfirmAfterDelay());
     }
 
     private IEnumerator AutoConfirmAfterDelay()

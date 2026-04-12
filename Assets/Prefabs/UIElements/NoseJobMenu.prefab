@@ -17,7 +17,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &4601054077474740195
 RectTransform:
   m_ObjectHideFlags: 0
@@ -349,6 +349,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 78ade51594822b6498e4cf0bc7a16206, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  timeTillMenuClose: 0.5
   _noseJobPanel: {fileID: 8275853494961833665}
   _topAnchor: {fileID: 3966823346697618610}
   _leftAnchor: {fileID: 3914356095671124621}
@@ -1399,7 +1400,7 @@ MonoBehaviour:
     m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
     m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
     m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
-    m_ColorMultiplier: 1
+    m_ColorMultiplier: 1.47
     m_FadeDuration: 0.1
   m_SpriteState:
     m_HighlightedSprite: {fileID: 0}
@@ -1419,7 +1420,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1660716137179745846}
         m_TargetAssemblyTypeName: NoseJobMenu, Assembly-CSharp
-        m_MethodName: ConfirmJob
+        m_MethodName: ConfirmWithDelay
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
