@@ -92,10 +92,10 @@ public class GameController : MonoBehaviour
     /// <param name="isVisable"></param>
     public void ToggleNoseJobMenu(bool isVisable)
     {
+        _noseJobActive = isVisable;
         Debug.Log("toggling menu " + (isVisable? "on" : "off"));
         ToggleNoseJob?.Invoke(isVisable);
         ToggleMouseLock(!isVisable);
-        _noseJobActive = isVisable;
     }
 
     /// <summary>
