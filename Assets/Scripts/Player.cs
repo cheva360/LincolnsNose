@@ -332,7 +332,7 @@ public class Player : MonoBehaviour
     public void FinishTransformation()
     {
         // Restore gravity
-        rb.gravityScale = 1f;
+        rb.gravityScale = 2f;
         
         // Restore rotation constraints (allow rotation again)
         rb.constraints = RigidbodyConstraints2D.None;
