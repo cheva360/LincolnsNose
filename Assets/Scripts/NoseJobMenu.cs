@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class NoseJobMenu : MonoBehaviour
@@ -10,9 +11,14 @@ public class NoseJobMenu : MonoBehaviour
     // store the nose state untill confirm sent
     private int _noseJob = 0;
 
-    [SerializeField] private Transform _topAttachmentpoint;
-    [SerializeField] private Transform _leftAttachemntPoint;
-    [SerializeField] private Transform _secondNose;
+    // anchors for snapping nose position
+    [SerializeField] private Transform _topAnchor;
+    [SerializeField] private Transform _leftAnchor;
+    [SerializeField] private Transform _noneAnchor;
+    [SerializeField] private float _maxSnapDist = 1f;
+
+
+    [SerializeField] private Transform _dragNose;
     private float _targetRotation = 0f;
     private float _noseRotation = 0f;
 
@@ -26,6 +32,8 @@ public class NoseJobMenu : MonoBehaviour
         // subscribe to ui event
         _gameController.ToggleNoseJob += ToggleVisability;
 
+        //start snapped to none anchor
+        _dragNose.position = _noneAnchor.position;
     }
 
     void Update()
@@ -39,10 +47,9 @@ public class NoseJobMenu : MonoBehaviour
                 _noseRotation = _targetRotation;
             }
 
-            _secondNose.eulerAngles = new Vector3(0, 0, _noseRotation);
+            _dragNose.eulerAngles = new Vector3(0, 0, _noseRotation);
         }
 
-            
     }
 
     public void ToggleVisability(bool isVisable)
@@ -68,29 +75,50 @@ public class NoseJobMenu : MonoBehaviour
 
     public void RotateNose()
     {
+        //move back to _noneAnchor
+        _dragNose.position = _noneAnchor.position;
+
         _targetRotation -= 90;
+        _noseJob += 1;
 
         // skip 270 rotation:
         if (_targetRotation % 360 <= -270)
         {
             // rotate again
             _targetRotation -= 90;
+            _noseJob = 0;
         }
-
-        // update transform rotation
-        //_secondNose.eulerAngles = new Vector3(0, 0, _targetRotation);
     }
 
-    public void PutdownNose(Transform nose)
+    public void PutDownNose(Transform nose)
     {
-        
+        // find closest anchor
+        Vector3 _activeAnchor = Vector3.zero;
+        switch (_noseJob)
+        {
+            case 0: _activeAnchor = _topAnchor.position; break;
+            case 1: _activeAnchor = _topAnchor.position; break;
+            case 2: _activeAnchor = _leftAnchor.position; break;
+        }
+
+        Debug.Log(Vector3.Distance(_activeAnchor, nose.position));
+
+        // check close enough
+        if (Vector3.Distance(_activeAnchor, nose.position) < _maxSnapDist)
+        {
+            nose.position = _activeAnchor;
+        }
+        else
+        {
+            nose.position = _noneAnchor.position;
+        }
     }
 
     public void PickupNose()
     {   
         // snap to finished rotation
         _noseRotation = _targetRotation;
-        _secondNose.eulerAngles = new Vector3(0, 0, _noseRotation);
+        _dragNose.eulerAngles = new Vector3(0, 0, _noseRotation);
     }
 
 }
