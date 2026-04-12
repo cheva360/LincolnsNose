@@ -131,6 +131,7 @@ public class GameController : MonoBehaviour
         SceneChangeTrigger?.Invoke();
         // call scene change on delay
         StartCoroutine(ChangeScene(delay, _levelSceneID));
+
     }
 
     public void GotoMenuScene(float delay)
@@ -147,6 +148,9 @@ public class GameController : MonoBehaviour
 
         // change scene on exit
         SceneManager.LoadScene(sceneID);
+
+        // find player in scene
+        player = GameObject.FindGameObjectWithTag("Player");
     }
 
     public void UpdateCheckpoint(Vector3 position)
