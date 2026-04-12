@@ -164,7 +164,7 @@ SpriteRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 9204145874510154998}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 0
   m_ReceiveShadows: 0
   m_DynamicOccludee: 1
@@ -226,6 +226,8 @@ MonoBehaviour:
   maxDragDistance: 4
   mouseSensitivity: 0.05
   torquePower: 4
+  washingtonTransform: {fileID: 0}
+  washingtonSpriteRenderer: {fileID: 0}
   maxAngularVelocity: 0.1
   requiredStableTime: 0.2
   stackChargeRate: 30
@@ -240,7 +242,7 @@ MonoBehaviour:
   tShapeTorquePower: 20
   tShapeBreakRadius: 1
   joystickIndicator: {fileID: 0}
-  spriteRenderer: {fileID: 8669717177424138134}
+  spriteRenderer: {fileID: 2585736138546387381}
   joystickSpriteRenderer: {fileID: 0}
   canJumpColor: {r: 1, g: 1, b: 1, a: 1}
   cannotJumpColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
@@ -249,8 +251,9 @@ MonoBehaviour:
   transformationVFX: {fileID: 0}
   animator: {fileID: 3517320681365185088}
   transformationRotationDuration: 0.3
-  transformationYLerpDuration: 0.5
+  transformationYLerpDuration: 2
   lerpYoffset: 2
+  maxTransformationWaitTime: 2
   hardLandingVelocity: -7
   cameraFollow: {fileID: 0}
   softLandingAngularVelocity: 150

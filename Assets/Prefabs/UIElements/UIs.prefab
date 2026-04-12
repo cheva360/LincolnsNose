@@ -557,6 +557,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 4457410777377262164}
     m_Modifications:
+    - target: {fileID: 1660716137179745846, guid: f4d96b99fd36c7f428b0681fc93937dd, type: 3}
+      propertyPath: _noseJobPanel
+      value: 
+      objectReference: {fileID: 8576583442399740135}
     - target: {fileID: 2670466598534641849, guid: f4d96b99fd36c7f428b0681fc93937dd, type: 3}
       propertyPath: m_Name
       value: NoseJobsPanel
@@ -649,6 +653,11 @@ PrefabInstance:
 --- !u!224 &5926259593816894471 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 6332576096532245025, guid: f4d96b99fd36c7f428b0681fc93937dd, type: 3}
+  m_PrefabInstance: {fileID: 423226056860485158}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &8576583442399740135 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8275853494961833665, guid: f4d96b99fd36c7f428b0681fc93937dd, type: 3}
   m_PrefabInstance: {fileID: 423226056860485158}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &8763879485748225052

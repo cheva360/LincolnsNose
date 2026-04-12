@@ -41,6 +41,7 @@ public class GameController : MonoBehaviour
 
         Instance = this;
         DontDestroyOnLoad(gameObject);
+        
 
     }
 
@@ -51,6 +52,7 @@ public class GameController : MonoBehaviour
             _activeCheckpoint = playerScript.transform.position;
         }
     }
+
 
     public void ToggleMouseLock(bool isLocked)
     {
@@ -72,7 +74,7 @@ public class GameController : MonoBehaviour
     /// <param name="isVisable"></param>
     public void ToggleNoseJobMenu(bool isVisable)
     {
-        Debug.Log("toggling menu " + (isVisable? "off" : "on"));
+        Debug.Log("toggling menu " + (isVisable? "on" : "off"));
         ToggleNoseJob?.Invoke(isVisable);
         ToggleMouseLock(!isVisable);
     }

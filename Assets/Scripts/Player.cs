@@ -22,7 +22,11 @@ public class Player : MonoBehaviour
     [SerializeField] private float maxDragDistance = 3f;
     [SerializeField] private float mouseSensitivity = 0.1f;
     [SerializeField] private float torquePower = 5f;
-    
+
+    [Header("Washington")]
+    [SerializeField] private Transform washingtonTransform;
+    [SerializeField] private SpriteRenderer washingtonSpriteRenderer;
+
     [Header("Jump Settings")]
     [SerializeField] private float maxAngularVelocity = 0.1f;
     [SerializeField] private float requiredStableTime = 0.2f; // Time in seconds angular velocity must be stable
@@ -61,6 +65,7 @@ public class Player : MonoBehaviour
     [SerializeField] private float transformationRotationDuration = 0.3f; // Duration to lerp rotation to 0
     [SerializeField] private float transformationYLerpDuration = 0.5f; // Duration to lerp position up
     [SerializeField] private float lerpYoffset = 1f; // Vertical offset for transformation movement
+    [SerializeField] private float maxTransformationWaitTime = 2f; // Maximum time to wait for animation event before forcing lerp
 
     [Header("Hard Landing")]
     [SerializeField] private float hardLandingVelocity = -7f;
@@ -74,6 +79,8 @@ public class Player : MonoBehaviour
     private AudioSource audioSource;
 
     private Rigidbody2D rb;
+    private Collider2D playerCollider;
+    private Collider2D washingtonCollider;
     private float currentDragRadius;
     private Vector2 dragDirection;
     private bool isDragging = false;
@@ -92,11 +99,14 @@ public class Player : MonoBehaviour
     private float currentCharge = 0f;
     private bool isCharging = false;
     private bool isGrounded = false;
+    private int groundContactCount = 0; // Track number of ground contacts (player + washington)
     private bool hasUsedAerialAbility = false; // Track if aerial ability has been used
     
     // Transformation variables
     private bool isTransforming = false;
+    private bool waitingForLerpToStart = false;
     private float transformationTimer = 0f;
+    private float transformationWaitTimer = 0f;
     private Vector2 transformationStartPosition;
     private Vector2 transformationTargetPosition;
     
@@ -106,6 +116,7 @@ public class Player : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
         audioSource = GetComponent<AudioSource>();
+        playerCollider = GetComponent<Collider2D>();
 
         // Get TrailRenderer component
         playerTrail = GetComponent<TrailRenderer>();
@@ -121,6 +132,16 @@ public class Player : MonoBehaviour
         if (joystickSpriteRenderer != null)
         {
             joystickOriginalColor = joystickSpriteRenderer.color;
+        }
+        
+        // Get Washington's SpriteRenderer and Collider if not assigned
+        if (washingtonTransform != null)
+        {
+            if (washingtonSpriteRenderer == null)
+            {
+                washingtonSpriteRenderer = washingtonTransform.GetComponent<SpriteRenderer>();
+            }
+            washingtonCollider = washingtonTransform.GetComponent<Collider2D>();
         }
         
         // Get CameraFollow if not assigned
@@ -169,6 +190,17 @@ public class Player : MonoBehaviour
             UpdateTransformationLerp();
         }
         
+        // Safety check: if waiting too long for animation event, force the lerp to start
+        if (waitingForLerpToStart)
+        {
+            transformationWaitTimer += Time.deltaTime;
+            if (transformationWaitTimer >= maxTransformationWaitTime)
+            {
+                Debug.LogWarning("Transformation animation event didn't fire in time. Forcing lerp to start.");
+                BeginTransformationLerp();
+            }
+        }
+        
         // State Machine Update
         UpdateState(currentState);
         
@@ -190,38 +222,89 @@ public class Player : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
+        HandleCollisionEnter(collision, true);
+    }
+    
+    private void OnCollisionExit2D(Collision2D collision)
+    {
+        HandleCollisionExit(collision, true);
+    }
+    
+    // Public methods for Washington to call (add WashingtonCollider script to Washington)
+    public void OnWashingtonCollisionEnter(Collision2D collision)
+    {
+        HandleCollisionEnter(collision, false);
+    }
+    
+    public void OnWashingtonCollisionExit(Collision2D collision)
+    {
+        HandleCollisionExit(collision, false);
+    }
+    
+    private void HandleCollisionEnter(Collision2D collision, bool isPlayerCollider)
+    {
         // Check if colliding with Ground tag
         if (collision.gameObject.CompareTag("Ground"))
         {
+            groundContactCount++;
             isGrounded = true;
-            // DON'T reset hasUsedAerialAbility here - it will be reset when stable
             
-            // HARD LANDING / CHIP VFX
-            // Check if velocity (vertical OR horizontal) was above threshold
-            if (velocityBeforeCollision.y < hardLandingVelocity || Mathf.Abs(velocityBeforeCollision.x) > Mathf.Abs(hardLandingVelocity))
+            // Set hasUsedAerialAbility to true when landing
+            hasUsedAerialAbility = true;
+            
+            // HARD LANDING / CHIP VFX - only trigger once from player collider
+            if (isPlayerCollider)
             {
-                // Get the contact point for accurate positioning
-                ContactPoint2D contact = collision.GetContact(0);
-
-                // Use the actual contact point Y position, which already accounts for rotation
-                rockVFX.transform.position = new Vector2(transform.position.x, contact.point.y);
-                rockVFX.GetComponent<VisualEffect>().Play();
-                audioSource.PlayOneShot(landSound);
-
-                cameraFollow.TriggerShake();
-                
-            }
-
-            // SOFT LAND VFX
-            // Only check for soft landing if it wasn't a hard landing
-            else if (Mathf.Abs(angularVelocityBeforeCollision) > (Mathf.Abs(softLandingAngularVelocity)))
-            {
-                Debug.Log("Soft landing detected with angular velocity: " + angularVelocityBeforeCollision + "soft landing" + softLandingAngularVelocity);
-                // Play soft land sound only if not already playing
-                if (!isSoftLandSoundPlaying && softLandSound != null)
+                // Check if velocity (vertical OR horizontal) was above threshold
+                if (velocityBeforeCollision.y < hardLandingVelocity || Mathf.Abs(velocityBeforeCollision.x) > Mathf.Abs(hardLandingVelocity))
                 {
-                    StartCoroutine(PlaySoftLandSound());
+                    // Get the contact point for accurate positioning
+                    ContactPoint2D contact = collision.GetContact(0);
+
+                    // Use the actual contact point Y position, which already accounts for rotation
+                    rockVFX.transform.position = new Vector2(transform.position.x, contact.point.y);
+                    rockVFX.GetComponent<VisualEffect>().Play();
+                    audioSource.PlayOneShot(landSound);
+
+                    cameraFollow.TriggerShake();
                 }
+                // SOFT LAND VFX - only check for soft landing if it wasn't a hard landing
+                else if (Mathf.Abs(angularVelocityBeforeCollision) > (Mathf.Abs(softLandingAngularVelocity)))
+                {
+                    Debug.Log("Soft landing detected with angular velocity: " + angularVelocityBeforeCollision + "soft landing" + softLandingAngularVelocity);
+                    // Play soft land sound only if not already playing
+                    if (!isSoftLandSoundPlaying && softLandSound != null)
+                    {
+                        StartCoroutine(PlaySoftLandSound());
+                    }
+                }
+            }
+        }
+
+        if (collision.gameObject.CompareTag("Washington") && isPlayerCollider)
+        {
+            //GameController.Instance.ToggleNoseJobMenu(true);
+        }
+        
+        // Handle breakable collisions from Washington when in TShape state
+        if (!isPlayerCollider && currentState == PlayerState.TShape && collision.gameObject.CompareTag("Breakable"))
+        {
+            if (hasUsedAerialAbility && !isGrounded)
+            {
+                Destroy(collision.gameObject);
+            }
+        }
+    }
+    
+    private void HandleCollisionExit(Collision2D collision, bool isPlayerCollider)
+    {
+        if (collision.gameObject.CompareTag("Ground"))
+        {
+            groundContactCount--;
+            if (groundContactCount <= 0)
+            {
+                groundContactCount = 0;
+                isGrounded = false;
             }
         }
     }
@@ -235,14 +318,6 @@ public class Player : MonoBehaviour
         yield return new WaitForSeconds(softLandSound.length);
         
         isSoftLandSoundPlaying = false;
-    }
-    
-    private void OnCollisionExit2D(Collision2D collision)
-    {
-        if (collision.gameObject.CompareTag("Ground"))
-        {
-            isGrounded = false;
-        }
     }
     
     // Change state with enter/exit handling
@@ -279,6 +354,32 @@ public class Player : MonoBehaviour
     // Start transformation sequence: Freeze physics, reset rotation, play animation, then lerp position up
     private void StartTransformation()
     {
+        Debug.Log("StartTransformation called");
+        
+        // Disable player collider during transformation
+        if (playerCollider != null)
+        {
+            playerCollider.enabled = false;
+        }
+        
+        // Deactivate Washington and play rock VFX at his position
+        if (washingtonTransform != null)
+        {
+            // Play rock VFX at Washington's position
+            if (rockVFX != null)
+            {
+                rockVFX.transform.position = washingtonTransform.position;
+                VisualEffect vfx = rockVFX.GetComponent<VisualEffect>();
+                if (vfx != null)
+                {
+                    vfx.Play();
+                }
+            }
+            
+            // Deactivate Washington
+            washingtonTransform.gameObject.SetActive(false);
+        }
+        
         // Disable gravity and freeze rotation during transformation
         rb.gravityScale = 0f;
         rb.velocity = Vector2.zero;
@@ -291,24 +392,26 @@ public class Player : MonoBehaviour
         // Play the transformation animation
         animator.SetTrigger("Transformation");
         
-        // Store positions for lerp (will start after animation via AnimationEvent)
+        // Store positions for lerp and START IT IMMEDIATELY
         transformationStartPosition = transform.position;
         transformationTargetPosition = transformationStartPosition + Vector2.up * lerpYoffset;
+        
+        // Start lerping immediately (during animation)
+        isTransforming = true;
+        transformationTimer = 0f;
+        waitingForLerpToStart = false;
+        
+        Debug.Log($"Transformation started at position {transformationStartPosition}, target: {transformationTargetPosition}");
     }
 
     // Called by animation event to begin the Y lerp after animation finishes
+    // THIS METHOD IS NO LONGER NEEDED if you want lerp during animation
     public void BeginTransformationLerp()
     {
-        // Update start position to current position (in case animator moved it)
-        transformationStartPosition = transform.position;
-        transformationTargetPosition = transformationStartPosition + Vector2.up * lerpYoffset;
-        
-        isTransforming = true;
-        transformationTimer = 0f;
-        
-        Debug.Log($"Starting Y lerp from {transformationStartPosition} to {transformationTargetPosition}");
+        // This can be removed or kept as a safety/debugging method
+        Debug.Log("BeginTransformationLerp called (animation event)");
     }
-
+    
     // Update transformation position lerp
     private void UpdateTransformationLerp()
     {
@@ -321,6 +424,7 @@ public class Player : MonoBehaviour
             transform.position = transformationTargetPosition;
             isTransforming = false;
             transformationTimer = 0f;
+            Debug.Log($"Transformation lerp complete. Final position: {transform.position}");
             return;
         }
         
@@ -331,6 +435,14 @@ public class Player : MonoBehaviour
     // Called by animation event at the end of transformation animation to restore physics
     public void FinishTransformation()
     {
+        Debug.Log("FinishTransformation called");
+        
+        // Re-enable player collider
+        if (playerCollider != null)
+        {
+            playerCollider.enabled = true;
+        }
+        
         // Restore gravity
         rb.gravityScale = 2f;
         
@@ -340,6 +452,20 @@ public class Player : MonoBehaviour
         // Reset velocities
         rb.velocity = Vector2.zero;
         rb.angularVelocity = 0f;
+        
+        // Reset aerial ability state and stable timer after transformation completes
+        hasUsedAerialAbility = true;
+        stableAngularVelocityTimer = 0f;
+        
+        // Reset ground state to ensure proper state tracking
+        // This fixes the bug where aerial abilities don't work after transformation
+        isGrounded = false;
+        groundContactCount = 0;
+        
+        Debug.Log($"Transformation finished. hasUsedAerialAbility: {hasUsedAerialAbility}, isGrounded: {isGrounded}");
+        
+        // Attach Washington as child and set position/rotation based on state
+        AttachWashington();
     }
 
     // Called by animation event "PlayCircle" at the end of transformation animation
@@ -356,6 +482,39 @@ public class Player : MonoBehaviour
         }
     }
     
+    // Attach Washington as child and position based on current state
+    private void AttachWashington()
+    {
+        if (washingtonTransform == null) return;
+        
+        // Activate Washington before setting position
+        washingtonTransform.gameObject.SetActive(true);
+        
+        // Set Washington as child of player
+        washingtonTransform.SetParent(transform);
+        
+        // Set local position and rotation based on current state
+        switch (currentState)
+        {
+            case PlayerState.TShape:
+                washingtonTransform.localPosition = new Vector3(-0.067f, 0.267f, 0f);
+                washingtonTransform.localRotation = Quaternion.Euler(0f, 0f, 95f);
+                break;
+            case PlayerState.Stack:
+                washingtonTransform.localPosition = new Vector3(-0.049f, 0.345f, 0f);
+                washingtonTransform.localRotation = Quaternion.Euler(0f, 0f, 0f);
+                break;
+            case PlayerState.Kite:
+                washingtonTransform.localPosition = new Vector3(-0.238f, 0.032f, 0f);
+                washingtonTransform.localRotation = Quaternion.Euler(0f, 0f, -187.502f);
+                break;
+            case PlayerState.Normal:
+                // Optionally detach Washington or set a default position
+                washingtonTransform.SetParent(null);
+                break;
+        }
+    }
+    
     // Exit state logic
     private void ExitState(PlayerState state)
     {
@@ -364,10 +523,13 @@ public class Player : MonoBehaviour
             case PlayerState.Normal:
                 break;
             case PlayerState.TShape:
-                break;
             case PlayerState.Stack:
-                break;
             case PlayerState.Kite:
+                // Detach Washington when exiting a transformation state
+                if (washingtonTransform != null && washingtonTransform.parent == transform)
+                {
+                    washingtonTransform.SetParent(null);
+                }
                 break;
         }
         
@@ -428,8 +590,8 @@ public class Player : MonoBehaviour
             // Increment timer
             stableAngularVelocityTimer += Time.deltaTime;
             
-            // Reset aerial ability flag when stable on ground
-            if (isGrounded && stableAngularVelocityTimer >= requiredStableTime)
+            // Reset aerial ability flag when stable on ground and can jump
+            if (isGrounded && stableAngularVelocityTimer >= requiredStableTime && CanJump())
             {
                 hasUsedAerialAbility = false;
             }
@@ -465,8 +627,14 @@ public class Player : MonoBehaviour
     
     private void UpdateSpriteColor()
     {
-        
+        // Update player sprite color
         spriteRenderer.color = CanJump() ? canJumpColor : cannotJumpColor;
+        
+        // Update Washington sprite color to match
+        if (washingtonSpriteRenderer != null && washingtonTransform != null && washingtonTransform.gameObject.activeSelf)
+        {
+            washingtonSpriteRenderer.color = CanJump() ? canJumpColor : cannotJumpColor;
+        }
     }
     
     private void UpdateTrailRenderer()
