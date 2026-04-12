@@ -35,6 +35,7 @@ public class GameController : MonoBehaviour
     // input actions because they suck
     [SerializeField] private PlayerInput _playerInput;
     private InputAction _escAction;
+    private bool _noseJobActive = false;
 
     void Awake()
     {
@@ -72,7 +73,7 @@ public class GameController : MonoBehaviour
     public void ToggleMouseLock(bool isLocked)
     {
         // keep unlocked in main menu
-        if (isLocked && SceneManager.GetActiveScene().buildIndex != 0)
+        if (isLocked && SceneManager.GetActiveScene().buildIndex != 0 && !_noseJobActive)
         {
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
@@ -94,6 +95,7 @@ public class GameController : MonoBehaviour
         Debug.Log("toggling menu " + (isVisable? "on" : "off"));
         ToggleNoseJob?.Invoke(isVisable);
         ToggleMouseLock(!isVisable);
+        _noseJobActive = isVisable;
     }
 
     /// <summary>
