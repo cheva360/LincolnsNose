@@ -177,7 +177,7 @@ public class Player : MonoBehaviour
         if (collision.gameObject.CompareTag("Ground"))
         {
             isGrounded = true;
-            hasUsedAerialAbility = false; // Reset aerial ability on landing
+            // DON'T reset hasUsedAerialAbility here - it will be reset when stable
             
             // HARD LANDING / CHIP VFX
             // Check if velocity (vertical OR horizontal) was above threshold
@@ -291,8 +291,8 @@ public class Player : MonoBehaviour
                 
                 break;
             case PlayerState.TShape:
-                // Check for breaking objects during spin
-                if (Mathf.Abs(rb.angularVelocity) > softLandingAngularVelocity)
+                // Only check for breakables if aerial ability has been used and spinning fast
+                if (hasUsedAerialAbility && !isGrounded && Mathf.Abs(rb.angularVelocity) > softLandingAngularVelocity)
                 {
                     CheckForBreakables();
                 }
@@ -313,6 +313,12 @@ public class Player : MonoBehaviour
         {
             // Increment timer
             stableAngularVelocityTimer += Time.deltaTime;
+            
+            // Reset aerial ability flag when stable on ground
+            if (isGrounded && stableAngularVelocityTimer >= requiredStableTime)
+            {
+                hasUsedAerialAbility = false;
+            }
         }
         else
         {
@@ -335,7 +341,11 @@ public class Player : MonoBehaviour
             {
                 return false; // Normal has no aerial ability
             }
-            return !hasUsedAerialAbility;
+            else
+            {
+                // Other states can jump in air if they haven't used their aerial ability yet
+                return !hasUsedAerialAbility;
+            }
         }
     }
     
@@ -923,13 +933,14 @@ public class Player : MonoBehaviour
                 UpdateJoystickNormal();
                 break;
             case PlayerState.TShape:
-                if (isGrounded || hasUsedAerialAbility)
+                // Only use TShape joystick when in air AND ability not used yet
+                if (!isGrounded && !hasUsedAerialAbility)
                 {
-                    UpdateJoystickNormal(); // Normal joystick when grounded or ability used
+                    UpdateJoystickTShape(); // Small omni-directional joystick
                 }
                 else
                 {
-                    UpdateJoystickTShape(); // Small omni-directional joystick
+                    UpdateJoystickNormal(); // Normal joystick when grounded or ability used
                 }
                 break;
             case PlayerState.Stack:
