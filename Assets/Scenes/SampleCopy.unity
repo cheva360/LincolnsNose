@@ -216,6 +216,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Checkpoint (3)
       objectReference: {fileID: 0}
+    - target: {fileID: 6642094805553145755, guid: 722d3a54f30880b4ab569c9838477029, type: 3}
+      propertyPath: _bgSprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 3fcc451ffda66ca4f8f7fddcfe96ef6e, type: 3}
     - target: {fileID: 7152733466233717954, guid: 722d3a54f30880b4ab569c9838477029, type: 3}
       propertyPath: m_LocalScale.y
       value: 17.320618
@@ -1300,6 +1304,67 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &148528564
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 4403057482071338048, guid: 722d3a54f30880b4ab569c9838477029, type: 3}
+      propertyPath: m_Name
+      value: Checkpoint (8)
+      objectReference: {fileID: 0}
+    - target: {fileID: 6642094805553145755, guid: 722d3a54f30880b4ab569c9838477029, type: 3}
+      propertyPath: _bgSprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 3fcc451ffda66ca4f8f7fddcfe96ef6e, type: 3}
+    - target: {fileID: 7457385472330432068, guid: 722d3a54f30880b4ab569c9838477029, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 2.1169407
+      objectReference: {fileID: 0}
+    - target: {fileID: 7457385472330432068, guid: 722d3a54f30880b4ab569c9838477029, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.8404751
+      objectReference: {fileID: 0}
+    - target: {fileID: 7457385472330432068, guid: 722d3a54f30880b4ab569c9838477029, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7457385472330432068, guid: 722d3a54f30880b4ab569c9838477029, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7457385472330432068, guid: 722d3a54f30880b4ab569c9838477029, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7457385472330432068, guid: 722d3a54f30880b4ab569c9838477029, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7457385472330432068, guid: 722d3a54f30880b4ab569c9838477029, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7457385472330432068, guid: 722d3a54f30880b4ab569c9838477029, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7457385472330432068, guid: 722d3a54f30880b4ab569c9838477029, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7457385472330432068, guid: 722d3a54f30880b4ab569c9838477029, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 722d3a54f30880b4ab569c9838477029, type: 3}
 --- !u!1 &150518841
 GameObject:
   m_ObjectHideFlags: 0
@@ -1494,6 +1559,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Checkpoint (1)
       objectReference: {fileID: 0}
+    - target: {fileID: 6642094805553145755, guid: 722d3a54f30880b4ab569c9838477029, type: 3}
+      propertyPath: _bgSprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 859fd5a96cbc5bc4b944a60fad145e13, type: 3}
     - target: {fileID: 7152733466233717954, guid: 722d3a54f30880b4ab569c9838477029, type: 3}
       propertyPath: m_LocalScale.y
       value: 27.765335
@@ -4419,6 +4488,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Checkpoint (2)
       objectReference: {fileID: 0}
+    - target: {fileID: 6642094805553145755, guid: 722d3a54f30880b4ab569c9838477029, type: 3}
+      propertyPath: _bgSprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 3fcc451ffda66ca4f8f7fddcfe96ef6e, type: 3}
     - target: {fileID: 7457385472330432068, guid: 722d3a54f30880b4ab569c9838477029, type: 3}
       propertyPath: m_LocalPosition.x
       value: 434.17014
@@ -8015,6 +8088,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Checkpoint
       objectReference: {fileID: 0}
+    - target: {fileID: 6642094805553145755, guid: 722d3a54f30880b4ab569c9838477029, type: 3}
+      propertyPath: _bgSprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 859fd5a96cbc5bc4b944a60fad145e13, type: 3}
     - target: {fileID: 7152733466233717954, guid: 722d3a54f30880b4ab569c9838477029, type: 3}
       propertyPath: m_LocalScale.y
       value: 24.686031
@@ -16004,6 +16081,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1280977205}
   - component: {fileID: 1280977204}
+  - component: {fileID: 1280977206}
   m_Layer: 0
   m_Name: BackgroundTest
   m_TagString: Untagged
@@ -16078,6 +16156,18 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1280977206
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1280977203}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 15fd5df8225477449aaf13d081859ff7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1294164476
 GameObject:
   m_ObjectHideFlags: 0
@@ -22411,6 +22501,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Checkpoint (7)
       objectReference: {fileID: 0}
+    - target: {fileID: 6642094805553145755, guid: 722d3a54f30880b4ab569c9838477029, type: 3}
+      propertyPath: _bgSprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 3fcc451ffda66ca4f8f7fddcfe96ef6e, type: 3}
     - target: {fileID: 7457385472330432068, guid: 722d3a54f30880b4ab569c9838477029, type: 3}
       propertyPath: m_LocalPosition.x
       value: 739.6691
@@ -23649,6 +23743,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Checkpoint (6)
       objectReference: {fileID: 0}
+    - target: {fileID: 6642094805553145755, guid: 722d3a54f30880b4ab569c9838477029, type: 3}
+      propertyPath: _bgSprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 859fd5a96cbc5bc4b944a60fad145e13, type: 3}
     - target: {fileID: 7457385472330432068, guid: 722d3a54f30880b4ab569c9838477029, type: 3}
       propertyPath: m_LocalPosition.x
       value: 48.15501
@@ -24847,6 +24945,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Checkpoint (5)
       objectReference: {fileID: 0}
+    - target: {fileID: 6642094805553145755, guid: 722d3a54f30880b4ab569c9838477029, type: 3}
+      propertyPath: _bgSprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 3fcc451ffda66ca4f8f7fddcfe96ef6e, type: 3}
     - target: {fileID: 7457385472330432068, guid: 722d3a54f30880b4ab569c9838477029, type: 3}
       propertyPath: m_LocalPosition.x
       value: 659.5929
@@ -26744,6 +26846,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Checkpoint (4)
       objectReference: {fileID: 0}
+    - target: {fileID: 6642094805553145755, guid: 722d3a54f30880b4ab569c9838477029, type: 3}
+      propertyPath: _bgSprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 3fcc451ffda66ca4f8f7fddcfe96ef6e, type: 3}
     - target: {fileID: 7152733466233717954, guid: 722d3a54f30880b4ab569c9838477029, type: 3}
       propertyPath: m_LocalScale.y
       value: 19.997234
@@ -26807,11 +26913,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 757511951978318743, guid: 0f91fe4e5daa5c8499dad61c7fd26d78, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 564.7
+      value: -2.8
       objectReference: {fileID: 0}
     - target: {fileID: 757511951978318743, guid: 0f91fe4e5daa5c8499dad61c7fd26d78, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 23.6
+      value: -0.1
       objectReference: {fileID: 0}
     - target: {fileID: 757511951978318743, guid: 0f91fe4e5daa5c8499dad61c7fd26d78, type: 3}
       propertyPath: m_LocalPosition.z
@@ -27074,3 +27180,4 @@ SceneRoots:
   - {fileID: 1889601477}
   - {fileID: 1917931237}
   - {fileID: 1774594359}
+  - {fileID: 148528564}
