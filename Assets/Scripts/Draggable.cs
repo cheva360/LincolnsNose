@@ -14,7 +14,7 @@ public class Draggable : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDra
     public void OnEndDrag(PointerEventData data)
     {
         Debug.Log("pickup");
-        _menu.PutdownNose(transform);
+        _menu.PutDownNose(transform);
     }
 
     public void OnBeginDrag(PointerEventData data)
