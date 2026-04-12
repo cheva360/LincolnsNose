@@ -13,7 +13,7 @@ public class Player : MonoBehaviour
         TShape,
         Kite
     }
-    
+    //hi
     [Header("State Settings")]
     [SerializeField] private PlayerState playerState = PlayerState.Normal;
     
