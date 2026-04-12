@@ -561,6 +561,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: NoseJobsPanel
       objectReference: {fileID: 0}
+    - target: {fileID: 4498235414767609646, guid: f4d96b99fd36c7f428b0681fc93937dd, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 6332576096532245025, guid: f4d96b99fd36c7f428b0681fc93937dd, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -644,13 +648,45 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 5975954451784160929, guid: f4d96b99fd36c7f428b0681fc93937dd, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 4502965324709381823}
   m_SourcePrefab: {fileID: 100100000, guid: f4d96b99fd36c7f428b0681fc93937dd, type: 3}
+--- !u!114 &1356592135666681872 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1660716137179745846, guid: f4d96b99fd36c7f428b0681fc93937dd, type: 3}
+  m_PrefabInstance: {fileID: 423226056860485158}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 78ade51594822b6498e4cf0bc7a16206, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!224 &5926259593816894471 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 6332576096532245025, guid: f4d96b99fd36c7f428b0681fc93937dd, type: 3}
   m_PrefabInstance: {fileID: 423226056860485158}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &6282876838500470919 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5975954451784160929, guid: f4d96b99fd36c7f428b0681fc93937dd, type: 3}
+  m_PrefabInstance: {fileID: 423226056860485158}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &4502965324709381823
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6282876838500470919}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b37d19fe0ab737744bfcc793c28bbde6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _menu: {fileID: 1356592135666681872}
 --- !u!1001 &8763879485748225052
 PrefabInstance:
   m_ObjectHideFlags: 0

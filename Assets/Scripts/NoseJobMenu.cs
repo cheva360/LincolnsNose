@@ -80,4 +80,17 @@ public class NoseJobMenu : MonoBehaviour
         // update transform rotation
         //_secondNose.eulerAngles = new Vector3(0, 0, _targetRotation);
     }
+
+    public void PutdownNose(Transform nose)
+    {
+        
+    }
+
+    public void PickupNose()
+    {   
+        // snap to finished rotation
+        _noseRotation = _targetRotation;
+        _secondNose.eulerAngles = new Vector3(0, 0, _noseRotation);
+    }
+
 }
