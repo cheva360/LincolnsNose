@@ -101,7 +101,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c0f8c95fcac99634fbc36a46cdf60254, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerState: 2
+  playerState: 0
   forcePower: 15
   maxDragDistance: 4
   mouseSensitivity: 0.05

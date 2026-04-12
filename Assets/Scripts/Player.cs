@@ -356,14 +356,8 @@ public class Player : MonoBehaviour
     // Normal state input (original behavior - no aerial ability)
     private void HandleNormalInput()
     {
-        // Only allow jumping when grounded
-        if (!isGrounded)
-        {
-            return;
-        }
-        
-        // Start dragging (only when grounded and can jump)
-        if (Input.GetMouseButtonDown(0) && CanJump())
+        // Start dragging (allow even when can't jump for visual feedback)
+        if (Input.GetMouseButtonDown(0))
         {
             isDragging = true;
             currentDragRadius = 0f;
@@ -399,10 +393,14 @@ public class Player : MonoBehaviour
             }
         }
         
-        // Release and apply force
+        // Release and apply force only if can jump and grounded
         if (Input.GetMouseButtonUp(0) && isDragging)
         {
-            ApplyForce();
+            if (CanJump() && isGrounded)
+            {
+                ApplyForce();
+            }
+            
             isDragging = false;
             
             if (joystickIndicator != null)
@@ -419,7 +417,7 @@ public class Player : MonoBehaviour
         if (isGrounded)
         {
             // Use normal jump logic when grounded
-            if (Input.GetMouseButtonDown(0) && CanJump())
+            if (Input.GetMouseButtonDown(0))
             {
                 isDragging = true;
                 currentDragRadius = 0f;
@@ -448,7 +446,10 @@ public class Player : MonoBehaviour
             
             if (Input.GetMouseButtonUp(0) && isDragging)
             {
-                ApplyForce();
+                if (CanJump())
+                {
+                    ApplyForce();
+                }
                 isDragging = false;
                 if (joystickIndicator != null)
                 {
@@ -458,54 +459,91 @@ public class Player : MonoBehaviour
             return;
         }
         
-        // Can't use aerial ability if already used
-        if (hasUsedAerialAbility)
+        // Aerial ability not used yet - use charge behavior
+        if (!hasUsedAerialAbility)
         {
-            return;
-        }
-        
-        // Aerial charge behavior
-        if (Input.GetMouseButtonDown(0))
-        {
-            isCharging = true;
-            currentCharge = 0f;
-            isDragging = true;
-            dragDirection = Vector2.down; // Start pointing down
-            
-            if (joystickIndicator != null)
+            if (Input.GetMouseButtonDown(0))
             {
-                joystickIndicator.gameObject.SetActive(true);
-                joystickIndicator.position = transform.position;
+                isCharging = true;
+                currentCharge = 0f;
+                isDragging = true;
+                dragDirection = Vector2.down; // Start pointing down
+                
+                if (joystickIndicator != null)
+                {
+                    joystickIndicator.gameObject.SetActive(true);
+                    joystickIndicator.position = transform.position;
+                }
+            }
+            
+            if (Input.GetMouseButton(0) && isCharging)
+            {
+                // Increase charge over time
+                currentCharge += stackChargeRate * Time.deltaTime;
+                currentCharge = Mathf.Min(currentCharge, stackMaxCharge);
+                
+                // Update joystick to grow downward
+                currentDragRadius = (currentCharge / stackMaxCharge) * maxDragDistance;
+                dragDirection = Vector2.down * currentDragRadius;
+            }
+            
+            if (Input.GetMouseButtonUp(0) && isCharging)
+            {
+                // Apply vertical force based on charge
+                Vector2 verticalForce = Vector2.up * currentCharge * stackForcePower;
+                rb.AddForce(verticalForce, ForceMode2D.Impulse);
+                
+                // Mark ability as used
+                hasUsedAerialAbility = true;
+                
+                isCharging = false;
+                isDragging = false;
+                currentCharge = 0f;
+                
+                if (joystickIndicator != null)
+                {
+                    StartCoroutine(SnapJoystickToNeutral());
+                }
             }
         }
-        
-        if (Input.GetMouseButton(0) && isCharging)
+        // Aerial ability already used - revert to normal drag behavior (no force applied)
+        else
         {
-            // Increase charge over time
-            currentCharge += stackChargeRate * Time.deltaTime;
-            currentCharge = Mathf.Min(currentCharge, stackMaxCharge);
-            
-            // Update joystick to grow downward
-            currentDragRadius = (currentCharge / stackMaxCharge) * maxDragDistance;
-            dragDirection = Vector2.down * currentDragRadius;
-        }
-        
-        if (Input.GetMouseButtonUp(0) && isCharging)
-        {
-            // Apply vertical force based on charge
-            Vector2 verticalForce = Vector2.up * currentCharge * stackForcePower;
-            rb.AddForce(verticalForce, ForceMode2D.Impulse);
-            
-            // Mark ability as used
-            hasUsedAerialAbility = true;
-            
-            isCharging = false;
-            isDragging = false;
-            currentCharge = 0f;
-            
-            if (joystickIndicator != null)
+            if (Input.GetMouseButtonDown(0))
             {
-                StartCoroutine(SnapJoystickToNeutral());
+                isDragging = true;
+                currentDragRadius = 0f;
+                dragDirection = Vector2.zero;
+                
+                if (joystickIndicator != null)
+                {
+                    joystickIndicator.gameObject.SetActive(true);
+                    joystickIndicator.position = transform.position;
+                }
+            }
+            
+            if (Input.GetMouseButton(0) && isDragging)
+            {
+                float mouseX = Input.GetAxis("Mouse X");
+                float mouseY = Input.GetAxis("Mouse Y");
+                Vector2 mouseDelta = new Vector2(mouseX, mouseY) * mouseSensitivity;
+                dragDirection += mouseDelta;
+                currentDragRadius = dragDirection.magnitude;
+                if (currentDragRadius > maxDragDistance)
+                {
+                    dragDirection = dragDirection.normalized * maxDragDistance;
+                    currentDragRadius = maxDragDistance;
+                }
+            }
+            
+            if (Input.GetMouseButtonUp(0) && isDragging)
+            {
+                // Don't apply force - ability already used
+                isDragging = false;
+                if (joystickIndicator != null)
+                {
+                    StartCoroutine(SnapJoystickToNeutral());
+                }
             }
         }
     }
@@ -517,7 +555,7 @@ public class Player : MonoBehaviour
         if (isGrounded)
         {
             // Use normal jump logic when grounded
-            if (Input.GetMouseButtonDown(0) && CanJump())
+            if (Input.GetMouseButtonDown(0))
             {
                 isDragging = true;
                 currentDragRadius = 0f;
@@ -546,7 +584,10 @@ public class Player : MonoBehaviour
             
             if (Input.GetMouseButtonUp(0) && isDragging)
             {
-                ApplyForce();
+                if (CanJump())
+                {
+                    ApplyForce();
+                }
                 isDragging = false;
                 if (joystickIndicator != null)
                 {
@@ -556,65 +597,102 @@ public class Player : MonoBehaviour
             return;
         }
         
-        // Can't use aerial ability if already used
-        if (hasUsedAerialAbility)
+        // Aerial ability not used yet - use charge behavior
+        if (!hasUsedAerialAbility)
         {
-            return;
-        }
-        
-        // Aerial charge behavior
-        if (Input.GetMouseButtonDown(0))
-        {
-            isCharging = true;
-            currentCharge = 0f;
-            isDragging = true;
-            dragDirection = Vector2.zero;
-            
-            if (joystickIndicator != null)
+            if (Input.GetMouseButtonDown(0))
             {
-                joystickIndicator.gameObject.SetActive(true);
-                joystickIndicator.position = transform.position;
+                isCharging = true;
+                currentCharge = 0f;
+                isDragging = true;
+                dragDirection = Vector2.zero;
+                
+                if (joystickIndicator != null)
+                {
+                    joystickIndicator.gameObject.SetActive(true);
+                    joystickIndicator.position = transform.position;
+                }
+            }
+            
+            if (Input.GetMouseButton(0) && isCharging)
+            {
+                // Get horizontal mouse input
+                float mouseX = Input.GetAxis("Mouse X");
+                
+                // Accumulate horizontal direction
+                dragDirection.x += mouseX * mouseSensitivity;
+                
+                // Clamp to left or right (X-axis only)
+                dragDirection.x = Mathf.Clamp(dragDirection.x, -maxDragDistance, maxDragDistance);
+                dragDirection.y = 0f; // Keep Y at zero
+                
+                // Increase charge over time
+                currentCharge += kiteChargeRate * Time.deltaTime;
+                currentCharge = Mathf.Min(currentCharge, kiteMaxCharge);
+                
+                currentDragRadius = Mathf.Abs(dragDirection.x);
+            }
+            
+            if (Input.GetMouseButtonUp(0) && isCharging)
+            {
+                // Apply horizontal force based on charge and direction (opposite of drag direction)
+                float direction = -Mathf.Sign(dragDirection.x);
+                if (dragDirection.x == 0f) direction = 0f; // Handle no direction case
+                
+                Vector2 horizontalForce = Vector2.right * direction * currentCharge * kiteForcePower;
+                rb.AddForce(horizontalForce, ForceMode2D.Impulse);
+                
+                // Mark ability as used
+                hasUsedAerialAbility = true;
+                
+                isCharging = false;
+                isDragging = false;
+                currentCharge = 0f;
+                
+                if (joystickIndicator != null)
+                {
+                    StartCoroutine(SnapJoystickToNeutral());
+                }
             }
         }
-        
-        if (Input.GetMouseButton(0) && isCharging)
+        // Aerial ability already used - revert to normal drag behavior (no force applied)
+        else
         {
-            // Get horizontal mouse input
-            float mouseX = Input.GetAxis("Mouse X");
-            
-            // Accumulate horizontal direction
-            dragDirection.x += mouseX * mouseSensitivity;
-            
-            // Clamp to left or right (X-axis only)
-            dragDirection.x = Mathf.Clamp(dragDirection.x, -maxDragDistance, maxDragDistance);
-            dragDirection.y = 0f; // Keep Y at zero
-            
-            // Increase charge over time
-            currentCharge += kiteChargeRate * Time.deltaTime;
-            currentCharge = Mathf.Min(currentCharge, kiteMaxCharge);
-            
-            currentDragRadius = Mathf.Abs(dragDirection.x);
-        }
-        
-        if (Input.GetMouseButtonUp(0) && isCharging)
-        {
-            // Apply horizontal force based on charge and direction (opposite of drag direction)
-            float direction = -Mathf.Sign(dragDirection.x);
-            if (dragDirection.x == 0f) direction = 0f; // Handle no direction case
-            
-            Vector2 horizontalForce = Vector2.right * direction * currentCharge * kiteForcePower;
-            rb.AddForce(horizontalForce, ForceMode2D.Impulse);
-            
-            // Mark ability as used
-            hasUsedAerialAbility = true;
-            
-            isCharging = false;
-            isDragging = false;
-            currentCharge = 0f;
-            
-            if (joystickIndicator != null)
+            if (Input.GetMouseButtonDown(0))
             {
-                StartCoroutine(SnapJoystickToNeutral());
+                isDragging = true;
+                currentDragRadius = 0f;
+                dragDirection = Vector2.zero;
+                
+                if (joystickIndicator != null)
+                {
+                    joystickIndicator.gameObject.SetActive(true);
+                    joystickIndicator.position = transform.position;
+                }
+            }
+            
+            if (Input.GetMouseButton(0) && isDragging)
+            {
+                float mouseX = Input.GetAxis("Mouse X");
+                float mouseY = Input.GetAxis("Mouse Y");
+                Vector2 mouseDelta = new Vector2(mouseX, mouseY) * mouseSensitivity;
+                dragDirection += mouseDelta;
+                currentDragRadius = dragDirection.magnitude;
+                if (currentDragRadius > maxDragDistance)
+                {
+                    dragDirection = dragDirection.normalized * maxDragDistance;
+                    currentDragRadius = maxDragDistance;
+                }
+            }
+            
+            if (Input.GetMouseButtonUp(0) && isDragging)
+            {
+                // Don't apply force - ability already used
+                isDragging = false;
+                if (joystickIndicator != null)
+                {
+                    StartCoroutine(SnapJoystickToNeutral());
+                }
             }
         }
     }
@@ -626,7 +704,7 @@ public class Player : MonoBehaviour
         if (isGrounded)
         {
             // Use normal jump logic when grounded
-            if (Input.GetMouseButtonDown(0) && CanJump())
+            if (Input.GetMouseButtonDown(0))
             {
                 isDragging = true;
                 currentDragRadius = 0f;
@@ -655,7 +733,10 @@ public class Player : MonoBehaviour
             
             if (Input.GetMouseButtonUp(0) && isDragging)
             {
-                ApplyForce();
+                if (CanJump())
+                {
+                    ApplyForce();
+                }
                 isDragging = false;
                 if (joystickIndicator != null)
                 {
@@ -665,74 +746,111 @@ public class Player : MonoBehaviour
             return;
         }
         
-        // Can't use aerial ability if already used
-        if (hasUsedAerialAbility)
+        // Aerial ability not used yet - use charge behavior
+        if (!hasUsedAerialAbility)
         {
-            return;
-        }
-        
-        // Aerial charge behavior (small omni-directional jump)
-        if (Input.GetMouseButtonDown(0))
-        {
-            isCharging = true;
-            currentCharge = 0f;
-            isDragging = true;
-            dragDirection = Vector2.zero;
-            
-            if (joystickIndicator != null)
+            if (Input.GetMouseButtonDown(0))
             {
-                joystickIndicator.gameObject.SetActive(true);
-                joystickIndicator.position = transform.position;
-            }
-        }
-        
-        if (Input.GetMouseButton(0) && isCharging)
-        {
-            // Get mouse delta movement (any direction, but limited range)
-            float mouseX = Input.GetAxis("Mouse X");
-            float mouseY = Input.GetAxis("Mouse Y");
-            
-            Vector2 mouseDelta = new Vector2(mouseX, mouseY) * mouseSensitivity;
-            
-            // Add mouse delta to drag direction
-            dragDirection += mouseDelta;
-            
-            // Calculate radius (distance from center)
-            currentDragRadius = dragDirection.magnitude;
-            
-            // Limit drag distance (smaller for TShape)
-            float tShapeMaxDrag = maxDragDistance * 0.5f; // Half the normal max drag for small jump
-            if (currentDragRadius > tShapeMaxDrag)
-            {
-                dragDirection = dragDirection.normalized * tShapeMaxDrag;
-                currentDragRadius = tShapeMaxDrag;
+                isCharging = true;
+                currentCharge = 0f;
+                isDragging = true;
+                dragDirection = Vector2.zero;
+                
+                if (joystickIndicator != null)
+                {
+                    joystickIndicator.gameObject.SetActive(true);
+                    joystickIndicator.position = transform.position;
+                }
             }
             
-            // Increase charge over time
-            currentCharge += tShapeChargeRate * Time.deltaTime;
-            currentCharge = Mathf.Min(currentCharge, tShapeMaxCharge);
-        }
-        
-        if (Input.GetMouseButtonUp(0) && isCharging)
-        {
-            // Apply small force in aimed direction
-            Vector2 forceDirection = -dragDirection.normalized;
-            rb.AddForce(forceDirection * currentCharge * tShapeForcePower, ForceMode2D.Impulse);
-            
-            // Apply high torque for spin
-            float torque = -forceDirection.x * currentCharge * tShapeTorquePower;
-            rb.AddTorque(torque, ForceMode2D.Impulse);
-            
-            // Mark ability as used
-            hasUsedAerialAbility = true;
-            
-            isCharging = false;
-            isDragging = false;
-            currentCharge = 0f;
-            
-            if (joystickIndicator != null)
+            if (Input.GetMouseButton(0) && isCharging)
             {
-                StartCoroutine(SnapJoystickToNeutral());
+                // Get mouse delta movement (any direction, but limited range)
+                float mouseX = Input.GetAxis("Mouse X");
+                float mouseY = Input.GetAxis("Mouse Y");
+                
+                Vector2 mouseDelta = new Vector2(mouseX, mouseY) * mouseSensitivity;
+                
+                // Add mouse delta to drag direction
+                dragDirection += mouseDelta;
+                
+                // Calculate radius (distance from center)
+                currentDragRadius = dragDirection.magnitude;
+                
+                // Limit drag distance (smaller for TShape)
+                float tShapeMaxDrag = maxDragDistance * 0.5f; // Half the normal max drag for small jump
+                if (currentDragRadius > tShapeMaxDrag)
+                {
+                    dragDirection = dragDirection.normalized * tShapeMaxDrag;
+                    currentDragRadius = tShapeMaxDrag;
+                }
+                
+                // Increase charge over time
+                currentCharge += tShapeChargeRate * Time.deltaTime;
+                currentCharge = Mathf.Min(currentCharge, tShapeMaxCharge);
+            }
+            
+            if (Input.GetMouseButtonUp(0) && isCharging)
+            {
+                // Apply small force in aimed direction
+                Vector2 forceDirection = -dragDirection.normalized;
+                rb.AddForce(forceDirection * currentCharge * tShapeForcePower, ForceMode2D.Impulse);
+                
+                // Apply high torque for spin
+                float torque = -forceDirection.x * currentCharge * tShapeTorquePower;
+                rb.AddTorque(torque, ForceMode2D.Impulse);
+                
+                // Mark ability as used
+                hasUsedAerialAbility = true;
+                
+                isCharging = false;
+                isDragging = false;
+                currentCharge = 0f;
+                
+                if (joystickIndicator != null)
+                {
+                    StartCoroutine(SnapJoystickToNeutral());
+                }
+            }
+        }
+        // Aerial ability already used - revert to normal drag behavior (no force applied)
+        else
+        {
+            if (Input.GetMouseButtonDown(0))
+            {
+                isDragging = true;
+                currentDragRadius = 0f;
+                dragDirection = Vector2.zero;
+                
+                if (joystickIndicator != null)
+                {
+                    joystickIndicator.gameObject.SetActive(true);
+                    joystickIndicator.position = transform.position;
+                }
+            }
+            
+            if (Input.GetMouseButton(0) && isDragging)
+            {
+                float mouseX = Input.GetAxis("Mouse X");
+                float mouseY = Input.GetAxis("Mouse Y");
+                Vector2 mouseDelta = new Vector2(mouseX, mouseY) * mouseSensitivity;
+                dragDirection += mouseDelta;
+                currentDragRadius = dragDirection.magnitude;
+                if (currentDragRadius > maxDragDistance)
+                {
+                    dragDirection = dragDirection.normalized * maxDragDistance;
+                    currentDragRadius = maxDragDistance;
+                }
+            }
+            
+            if (Input.GetMouseButtonUp(0) && isDragging)
+            {
+                // Don't apply force - ability already used
+                isDragging = false;
+                if (joystickIndicator != null)
+                {
+                    StartCoroutine(SnapJoystickToNeutral());
+                }
             }
         }
     }
@@ -799,22 +917,15 @@ public class Player : MonoBehaviour
     
     private void UpdateJoystickVisual()
     {
-        // Check if we're in air and ability is already used
-        if (!isGrounded && hasUsedAerialAbility)
-        {
-            // Don't show joystick if ability already used
-            return;
-        }
-        
         switch (currentState)
         {
             case PlayerState.Normal:
                 UpdateJoystickNormal();
                 break;
             case PlayerState.TShape:
-                if (isGrounded)
+                if (isGrounded || hasUsedAerialAbility)
                 {
-                    UpdateJoystickNormal();
+                    UpdateJoystickNormal(); // Normal joystick when grounded or ability used
                 }
                 else
                 {
@@ -822,9 +933,9 @@ public class Player : MonoBehaviour
                 }
                 break;
             case PlayerState.Stack:
-                if (isGrounded)
+                if (isGrounded || hasUsedAerialAbility)
                 {
-                    UpdateJoystickNormal();
+                    UpdateJoystickNormal(); // Normal joystick when grounded or ability used
                 }
                 else
                 {
@@ -832,9 +943,9 @@ public class Player : MonoBehaviour
                 }
                 break;
             case PlayerState.Kite:
-                if (isGrounded)
+                if (isGrounded || hasUsedAerialAbility)
                 {
-                    UpdateJoystickNormal();
+                    UpdateJoystickNormal(); // Normal joystick when grounded or ability used
                 }
                 else
                 {
@@ -843,18 +954,10 @@ public class Player : MonoBehaviour
                 break;
         }
         
-        // Update joystick color based on CanJump or charging state
+        // Update joystick color based on CanJump
         if (joystickSpriteRenderer != null)
         {
-            if (isGrounded)
-            {
-                joystickSpriteRenderer.color = CanJump() ? joystickOriginalColor : cannotJumpColor;
-            }
-            else
-            {
-                // When charging in air, use original color if ability not used
-                joystickSpriteRenderer.color = !hasUsedAerialAbility ? joystickOriginalColor : cannotJumpColor;
-            }
+            joystickSpriteRenderer.color = CanJump() ? joystickOriginalColor : cannotJumpColor;
         }
     }
     
