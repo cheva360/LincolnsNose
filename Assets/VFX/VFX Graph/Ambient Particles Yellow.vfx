@@ -20,7 +20,7 @@ MonoBehaviour:
     x: 426
     y: -190
     width: 940
-    height: 1838
+    height: 1858
 --- !u!114 &114350483966674976
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1969,7 +1969,7 @@ MonoBehaviour:
       m_Type:
         m_SerializableType: UnityEngine.Vector3, UnityEngine.CoreModule, Version=0.0.0.0,
           Culture=neutral, PublicKeyToken=null
-      m_SerializableObject: '{"x":0.856603741645813,"y":0.74149489402771,"z":0.160007044672966}'
+      m_SerializableObject: '{"x":0.5482021570205689,"y":0.9263233542442322,"z":0.9849056601524353}'
     m_Space: 2147483647
   m_Property:
     name: A
@@ -2105,7 +2105,7 @@ MonoBehaviour:
       m_Type:
         m_SerializableType: UnityEngine.Vector3, UnityEngine.CoreModule, Version=0.0.0.0,
           Culture=neutral, PublicKeyToken=null
-      m_SerializableObject: '{"x":2.0,"y":1.037994146347046,"z":0.41886794567108157}'
+      m_SerializableObject: '{"x":0.08896402269601822,"y":0.47498229146003725,"z":0.9245283007621765}'
     m_Space: 2147483647
   m_Property:
     name: B
