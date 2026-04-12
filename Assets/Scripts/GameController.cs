@@ -40,9 +40,8 @@ public class GameController : MonoBehaviour
 
     public void ToggleMouseLock(bool isLocked)
     {
-        // TODO: do scene id check so that mouse lock stays off when in main menu
-
-        if (isLocked)
+        // keep unlocked in main menu
+        if (isLocked && SceneManager.GetActiveScene().buildIndex != 0)
         {
             Cursor.lockState = CursorLockMode.Locked;
         }
@@ -85,7 +84,7 @@ public class GameController : MonoBehaviour
     public void OpenSettings(bool isVisable)
     {
         ToggleSettingsMenu?.Invoke(isVisable);
-        //ToggleMouseLock(!isVisable);
+        ToggleMouseLock(!isVisable);
     }
 
     public void GotoLevelScene(float delay)

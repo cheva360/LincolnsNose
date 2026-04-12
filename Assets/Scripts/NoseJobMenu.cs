@@ -21,10 +21,11 @@ public class NoseJobMenu : MonoBehaviour
     [SerializeField] private Transform _dragNose;
     private float _targetRotation = 0f;
     private float _noseRotation = 0f;
+    private int _rotState = 0;
 
     [SerializeField] private float _rotTweenSpeed = 70;
-
     private bool _finished = false;
+
 
     void Start()
     {
@@ -58,13 +59,6 @@ public class NoseJobMenu : MonoBehaviour
         _noseJobPanel.SetActive(isVisable);
     }
 
-    public void SetNoseJob(int noseJobInt)
-    {
-        // call update on gamecontroller
-        _noseJob = noseJobInt;
-        Debug.Log($"nosejob is now: {_noseJob}");
-    }
-
     public void ConfirmJob()
     {
         // update player
@@ -81,14 +75,14 @@ public class NoseJobMenu : MonoBehaviour
         _finished = false;
 
         _targetRotation -= 90;
-        _noseJob += 1;
+        _rotState += 1;
 
         // skip 270 rotation:
         if (_targetRotation % 360 <= -270)
         {
             // rotate again
             _targetRotation -= 90;
-            _noseJob = 0;
+            _rotState = 0;
         }
     }
 
@@ -96,7 +90,7 @@ public class NoseJobMenu : MonoBehaviour
     {
         // find closest anchor
         Vector3 _activeAnchor = Vector3.zero;
-        switch (_noseJob)
+        switch (_rotState)
         {
             case 0: _activeAnchor = _topAnchor.position; break;
             case 1: _activeAnchor = _topAnchor.position; break;
@@ -110,10 +104,12 @@ public class NoseJobMenu : MonoBehaviour
         {
             nose.position = _activeAnchor;
             _finished = true;
+            _noseJob = _rotState + 1;
         }
         else
         {
             nose.position = _noneAnchor.position;
+            _noseJob = 0;
         }
     }
 
