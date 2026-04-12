@@ -15,7 +15,16 @@ public class CameraFollow : MonoBehaviour
     [Header("Parallax Settings")]
     [SerializeField] private Transform ParallaxBackground;
     [SerializeField] private float parallaxEffect = 0.5f; // 0 = no movement, 1 = moves with camera
-    
+
+    [Header("CameraZoom")]
+    [SerializeField] private float maxZoomout = 9.5f;
+    [SerializeField] private float maxZoomin = 7.5f;
+    [SerializeField] private float zoomStep = 0.5f;
+    [SerializeField] private float zoomSpeed = 5f;
+    private float currentZoom = 8.5f;
+    private float targetZoom = 8.5f;
+
+
     private Vector3 originalPosition;
     private float currentShakeDuration = 0f;
     private Vector3 previousCameraPosition;
@@ -57,8 +66,27 @@ public class CameraFollow : MonoBehaviour
         }
         
         previousCameraPosition = transform.position;
+
+        // Handle scroll wheel zoom input
+        float scrollInput = Input.GetAxis("Mouse ScrollWheel");
+        if (scrollInput > 0f)
+        {
+            // Scroll up - zoom in (subtract from target)
+            targetZoom -= zoomStep;
+        }
+        else if (scrollInput < 0f)
+        {
+            // Scroll down - zoom out (add to target)
+            targetZoom += zoomStep;
+        }
+        
+        // Clamp target zoom between min and max
+        targetZoom = Mathf.Clamp(targetZoom, maxZoomin, maxZoomout);
+
+        // Lerp camera zoom to target
+        Camera.main.orthographicSize = Mathf.Lerp(Camera.main.orthographicSize, targetZoom, Time.deltaTime * zoomSpeed);
     }
-    
+
     public void TriggerShake()
     {
         currentShakeDuration = shakeDuration;
