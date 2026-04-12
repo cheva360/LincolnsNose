@@ -13,8 +13,11 @@ public class NoseJobMenu : MonoBehaviour
     [SerializeField] private Transform _topAttachmentpoint;
     [SerializeField] private Transform _leftAttachemntPoint;
     [SerializeField] private Transform _secondNose;
+    private float _targetRotation = 0f;
     private float _noseRotation = 0f;
-    
+
+    [SerializeField] private float _rotTweenSpeed = 70;
+
 
     void Start()
     {
@@ -22,6 +25,24 @@ public class NoseJobMenu : MonoBehaviour
 
         // subscribe to ui event
         _gameController.ToggleNoseJob += ToggleVisability;
+
+    }
+
+    void Update()
+    {
+        if (_targetRotation < _noseRotation)
+        {
+            _noseRotation -= _rotTweenSpeed * Time.deltaTime;
+
+            if (_targetRotation >= _noseRotation)
+            {
+                _noseRotation = _targetRotation;
+            }
+
+            _secondNose.eulerAngles = new Vector3(0, 0, _noseRotation);
+        }
+
+            
     }
 
     public void ToggleVisability(bool isVisable)
@@ -47,16 +68,16 @@ public class NoseJobMenu : MonoBehaviour
 
     public void RotateNose()
     {
-        _noseRotation += 90;
-        
+        _targetRotation -= 90;
+
         // skip 270 rotation:
-        if (_noseRotation >= 270)
+        if (_targetRotation % 360 <= -270)
         {
-            _noseRotation = 0f;
+            // rotate again
+            _targetRotation -= 90;
         }
 
         // update transform rotation
-        _secondNose.eulerAngles = new Vector3(0, 0, -_noseRotation);
+        //_secondNose.eulerAngles = new Vector3(0, 0, _targetRotation);
     }
-
 }
