@@ -8,6 +8,8 @@ public class MainMenu : MonoBehaviour
     [SerializeField] private GameObject _mainMenu;
     [SerializeField] private GameObject _videoAnimation;
     [SerializeField] private VideoPlayer _introPlayer;
+    [SerializeField] private GameObject credits;
+
 
     private GameController _gameController;
 
@@ -25,7 +27,7 @@ public class MainMenu : MonoBehaviour
         ShowMainMenu();
 
         // subscribe to settings event to close main ui
-        _gameController.ToggleSettingsMenu += OnSettignsToggle;
+        _gameController.ToggleSettingsMenu += HideCredits;
     }
 
     void OnSettignsToggle(bool settingsOn)
@@ -61,9 +63,27 @@ public class MainMenu : MonoBehaviour
     public void OpenSettings()
     {
         // hide main menu
-        _mainMenu.SetActive(false);
+        //_mainMenu.SetActive(false);
 
         // call game controller to open settings
         _gameController.OpenSettings(true);
+    }
+
+    public void QuitGame()
+    {
+        _gameController.QuitGame();
+    }
+
+    public void ShowCredits()
+    {
+        credits.SetActive(true);
+    }
+
+    public void HideCredits(bool settingsOpen)
+    {
+        if (!settingsOpen)
+        {
+            credits.SetActive(false);
+        }
     }
 }

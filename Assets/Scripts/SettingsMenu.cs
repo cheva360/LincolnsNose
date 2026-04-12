@@ -29,4 +29,9 @@ public class SettingsMenu : MonoBehaviour
         _settingsMenu.SetActive(isVisable);
     }
 
+    public void GotoMain()
+    {
+        _gameController.GotoMenuScene(0.1f);
+    }
+
 }

@@ -1,10 +1,7 @@
 using System.Collections;
-using System.Collections.Generic;
-using Unity.Mathematics;
-using Unity.VisualScripting;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.InputSystem;
 
 public class GameController : MonoBehaviour
 {
@@ -31,6 +28,11 @@ public class GameController : MonoBehaviour
     private Vector3 _activeCheckpoint;
     public event Trigger PlayerHasDied;
 
+
+    // input actions because they suck
+    [SerializeField] private PlayerInput _playerInput;
+    private InputAction _escAction;
+
     void Awake()
     {
         if (Instance != null && Instance != this)
@@ -49,6 +51,9 @@ public class GameController : MonoBehaviour
         {
             _activeCheckpoint = playerScript.transform.position;
         }
+
+        _escAction = _playerInput.actions.FindAction("Esc");
+        _escAction.performed += OnEsc;
     }
 
     // Register player reference (called from Player.Start)
@@ -154,6 +159,16 @@ public class GameController : MonoBehaviour
         player.transform.position = _activeCheckpoint;
 
         Debug.Log("respawned Player");
+    }
+
+    public void OnEsc(InputAction.CallbackContext context)
+    {
+        OpenSettings(true);
+    }
+
+    public void QuitGame()
+    {
+        Application.Quit();
     }
 
 }
