@@ -106,7 +106,7 @@ MonoBehaviour:
   maxDragDistance: 4
   mouseSensitivity: 0.05
   torquePower: 4
-  maxAngularVelocity: 0.01
+  maxAngularVelocity: 0.1
   requiredStableTime: 0.2
   stackChargeRate: 20
   stackMaxCharge: 10

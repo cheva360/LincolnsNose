@@ -977,7 +977,7 @@ public class Player : MonoBehaviour
         // Set world position relative to player
         joystickIndicator.position = (Vector2)transform.position + dragDirection * 0.5f;
         // make joystick scale based on drag distance
-        float scale = 0.1f + (currentDragRadius / maxDragDistance) * 3.5f;
+        float scale = 0.1f + (currentDragRadius / maxDragDistance) * 5f;
         joystickIndicator.localScale = new Vector3(scale, scale, 1f);
     }
     
