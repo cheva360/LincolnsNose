@@ -72,7 +72,7 @@ public class Player : MonoBehaviour
     [SerializeField] private float transformationRotationDuration = 0.3f; // Duration to lerp rotation to 0
     [SerializeField] private float transformationYLerpDuration = 0.5f; // Duration to lerp position up
     [SerializeField] private float lerpYoffset = 1f; // Vertical offset for transformation movement
-    [SerializeField] private float maxTransformationWaitTime = 2f; // Maximum time to wait for animation event before forcing lerp
+    [SerializeField] private float transformationCompletionDelay = 2.25f; // Time before PlayCircle and FinishTransformation are called
 
     [Header("Hard Landing")]
     [SerializeField] private float hardLandingVelocity = -7f;
@@ -487,13 +487,12 @@ public class Player : MonoBehaviour
         }
     }
 
-    // Start transformation sequence: Freeze physics, reset rotation, play animation, then lerp position up
+    // Start transformation sequence: Freeze physics, reset rotation, play animation, then wait for timed completion
     private void StartTransformation()
     {
         //Debug.Log("StartTransformation called");
         
         // Disable player collider during transformation
-
         playerCollider.enabled = false;
         landingVFX.transform.position = washingtonTransform.position;
         VisualEffect vfx = landingVFX.GetComponent<VisualEffect>();
@@ -521,11 +520,20 @@ public class Player : MonoBehaviour
         transformationTimer = 0f;
         waitingForLerpToStart = false;
         
+        // Start the timed transformation completion coroutine
+        StartCoroutine(CompleteTransformationAfterDelay());
+        
         //Debug.Log($"Transformation started at position {transformationStartPosition}, target: {transformationTargetPosition}");
     }
 
-    // Called by animation event to begin the Y lerp after animation finishes
-    // THIS METHOD IS NO LONGER NEEDED if you want lerp during animation
+    // Coroutine to wait for the specified delay, then call PlayCircle and FinishTransformation
+    private IEnumerator CompleteTransformationAfterDelay()
+    {
+        yield return new WaitForSeconds(transformationCompletionDelay);
+        
+        PlayCircle();
+        FinishTransformation();
+    }
     
     // Update transformation position lerp
     private void UpdateTransformationLerp()
@@ -547,7 +555,7 @@ public class Player : MonoBehaviour
         transform.position = Vector2.Lerp(transformationStartPosition, transformationTargetPosition, t);
     }
 
-    // Called by animation event at the end of transformation animation to restore physics
+    // Called after delay to restore physics (can still be called by animation event if needed)
     public void FinishTransformation()
     {
         Debug.Log("FinishTransformation called");
@@ -583,7 +591,7 @@ public class Player : MonoBehaviour
         AttachWashington();
     }
 
-    // Called by animation event "PlayCircle" at the end of transformation animation
+    // Called after delay to play transformation VFX (can still be called by animation event if needed)
     public void PlayCircle()
     {
         if (transformationVFX != null)
