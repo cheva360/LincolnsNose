@@ -1,5 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Mathematics;
+using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -25,6 +27,10 @@ public class GameController : MonoBehaviour
     public event Trigger SceneChangeTrigger;
 
 
+    // for tracking checkpoints
+    private Vector3 _activeCheckpoint;
+    public event Trigger PlayerHasDied;
+
     void Awake()
     {
         if (Instance != null && Instance != this)
@@ -36,6 +42,14 @@ public class GameController : MonoBehaviour
         Instance = this;
         DontDestroyOnLoad(gameObject);
 
+    }
+
+    void Start()
+    {
+        if (playerScript != null)
+        {
+            _activeCheckpoint = playerScript.transform.position;
+        }
     }
 
     public void ToggleMouseLock(bool isLocked)
@@ -108,6 +122,24 @@ public class GameController : MonoBehaviour
 
         // change scene on exit
         SceneManager.LoadScene(sceneID);
+    }
+
+    public void UpdateCheckpoint(Vector3 position)
+    {
+        _activeCheckpoint = position;
+        Debug.Log("checkpoint saved: " + _activeCheckpoint);
+    }
+
+    public void KillPlayer()
+    {
+        // for other related things like blank screen
+        PlayerHasDied?.Invoke();
+
+        // reset player to checkpoint
+        player.transform.eulerAngles = Vector3.zero;
+        player.transform.position = _activeCheckpoint;
+
+        Debug.Log("respawned Player");
     }
 
 }
