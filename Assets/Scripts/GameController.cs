@@ -64,8 +64,6 @@ public class GameController : MonoBehaviour
     public void ToggleMouseLock(bool isLocked)
     {
         // keep unlocked in main menu
-        Debug.Log("scene allow lock? " + SceneManager.GetActiveScene().buildIndex);
-
         if (isLocked && SceneManager.GetActiveScene().buildIndex != 0)
         {
             Cursor.lockState = CursorLockMode.Locked;
