@@ -58,9 +58,7 @@ public class GameController : MonoBehaviour
         }
 
         _escAction = _playerInput.actions.FindAction("Esc");
-        _tabAction = _playerInput.actions.FindAction('Tab');
         _escAction.performed += OnEsc;
-        _tabAction.performed += OnEsc;
     }
 
     // Register player reference (called from Player.Start)
