@@ -56,7 +56,7 @@ public class Player : MonoBehaviour
     [SerializeField] private Color canJumpColor = Color.white;
     [SerializeField] private Color cannotJumpColor = Color.grey;
     [SerializeField] private float joystickSnapDuration = 0.1f; // Duration for snap back animation
-    [SerializeField] private GameObject rockVFX;
+    [SerializeField] private VisualEffect landingVFX;
     [SerializeField] private GameObject transformationVFX;
 
     [Header("Animator")]
@@ -275,8 +275,9 @@ public class Player : MonoBehaviour
                     ContactPoint2D contact = collision.GetContact(0);
 
                     // Use the actual contact point Y position, which already accounts for rotation
-                    rockVFX.transform.position = new Vector2(transform.position.x, contact.point.y);
-                    rockVFX.GetComponent<VisualEffect>().Play();
+                    landingVFX.transform.position = new Vector2(transform.position.x, contact.point.y);
+                    landingVFX.SendEvent("OnLand");
+                    //landingVFX.SendEvent("OnLandCave");
                     audioSource.PlayOneShot(landSound);
 
                     cameraFollow.TriggerShake();
@@ -430,13 +431,13 @@ public class Player : MonoBehaviour
         if (washingtonTransform != null)
         {
             // Play rock VFX at Washington's position
-            if (rockVFX != null)
+            if (landingVFX != null)
             {
-                rockVFX.transform.position = washingtonTransform.position;
-                VisualEffect vfx = rockVFX.GetComponent<VisualEffect>();
+                landingVFX.transform.position = washingtonTransform.position;
+                VisualEffect vfx = landingVFX.GetComponent<VisualEffect>();
                 if (vfx != null)
                 {
-                    vfx.Play();
+                    vfx.SendEvent("OnLand");
                 }
             }
             
