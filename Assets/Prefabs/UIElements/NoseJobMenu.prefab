@@ -349,11 +349,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 78ade51594822b6498e4cf0bc7a16206, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _noseJobPanel: {fileID: 0}
+  _noseJobPanel: {fileID: 8275853494961833665}
   _topAnchor: {fileID: 3966823346697618610}
   _leftAnchor: {fileID: 3914356095671124621}
   _noneAnchor: {fileID: 6320614545045941997}
-  _maxSnapDist: 400
+  _maxSnapDist: 300
   _dragNose: {fileID: 6251881999784697201}
   _rotTweenSpeed: 400
 --- !u!1 &2957071434856205199
