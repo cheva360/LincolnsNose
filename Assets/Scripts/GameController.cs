@@ -35,6 +35,7 @@ public class GameController : MonoBehaviour
     // input actions because they suck
     [SerializeField] private PlayerInput _playerInput;
     private InputAction _escAction;
+    private InputAction _tabAction;
     private bool _noseJobActive = false;
 
     void Awake()
@@ -57,7 +58,9 @@ public class GameController : MonoBehaviour
         }
 
         _escAction = _playerInput.actions.FindAction("Esc");
+        _tabAction = _playerInput.actions.FindAction('Tab');
         _escAction.performed += OnEsc;
+        _tabAction.performed += OnEsc;
     }
 
     // Register player reference (called from Player.Start)
