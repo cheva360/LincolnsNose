@@ -26,6 +26,7 @@ public class Player : MonoBehaviour
     [Header("Washington")]
     [SerializeField] private Transform washingtonTransform;
     [SerializeField] private SpriteRenderer washingtonSpriteRenderer;
+    private bool isCollidingWithWashington = false;
 
     [Header("Jump Settings")]
     [SerializeField] private float maxAngularVelocity = 0.1f;
@@ -169,6 +170,12 @@ public class Player : MonoBehaviour
         // Initialize state machine with inspector value
         currentState = playerState;
         EnterState(currentState);
+
+        // Register playerScript reference in GameController
+        if (GameController.Instance != null)
+        {
+            GameController.Instance.RegisterPlayer(this);
+        }
     }
 
     // Update is called once per frame
@@ -199,6 +206,12 @@ public class Player : MonoBehaviour
                 Debug.LogWarning("Transformation animation event didn't fire in time. Forcing lerp to start.");
                 BeginTransformationLerp();
             }
+        }
+        
+        // Handle right-click to release Washington (only when attached as child)
+        if (Input.GetMouseButtonDown(1) && washingtonTransform != null && washingtonTransform.parent == transform)
+        {
+            ReleaseWashington();
         }
         
         // State Machine Update
@@ -281,9 +294,21 @@ public class Player : MonoBehaviour
             }
         }
 
-        if (collision.gameObject.CompareTag("Washington") && isPlayerCollider)
+        // Check for Washington collision - ONLY when player's collider detects it
+        // This prevents duplicate detection from WashingtonCollider script
+        if (isPlayerCollider && collision.gameObject.CompareTag("Washington") && currentState == PlayerState.Normal)
         {
-            //GameController.Instance.ToggleNoseJobMenu(true);
+            isCollidingWithWashington = true;
+            Debug.Log("Player collided with Washington! Opening menu...");
+            // Open nose job menu
+            if (GameController.Instance != null)
+            {
+                GameController.Instance.ToggleNoseJobMenu(true);
+            }
+            else
+            {
+                Debug.LogError("GameController.Instance is null!");
+            }
         }
         
         // Handle breakable collisions from Washington when in TShape state
@@ -307,6 +332,12 @@ public class Player : MonoBehaviour
                 isGrounded = false;
             }
         }
+
+        // Track when leaving Washington collision
+        if (collision.gameObject.CompareTag("Washington") && isPlayerCollider)
+        {
+            isCollidingWithWashington = false;
+        }
     }
     
     private IEnumerator PlaySoftLandSound()
@@ -325,11 +356,44 @@ public class Player : MonoBehaviour
     {
         if (currentState == newState) return;
         
+        // Only allow transformation if in Normal state and colliding with Washington
+        if (currentState == PlayerState.Normal && newState != PlayerState.Normal)
+        {
+            if (!isCollidingWithWashington)
+            {
+                Debug.LogWarning("Cannot transform: Not colliding with Washington!");
+                return;
+            }
+        }
+        
         ExitState(currentState);
         previousState = currentState;
         currentState = newState;
         playerState = newState; // Sync inspector value
         EnterState(currentState);
+    }
+
+    // Release Washington from being a child (on right-click)
+    private void ReleaseWashington()
+    {
+        if (washingtonTransform == null) return;
+
+        Debug.Log("Releasing Washington");
+
+        // Detach Washington from player
+        washingtonTransform.SetParent(null);
+
+        // Enable Washington's rigidbody if it has one
+        Rigidbody2D washingtonRb = washingtonTransform.GetComponent<Rigidbody2D>();
+        if (washingtonRb != null)
+        {
+            washingtonRb.simulated = true;
+            // Optionally give it some velocity based on player's current velocity
+            washingtonRb.velocity = rb.velocity * 0.5f;
+        }
+
+        // Return to Normal state
+        SetState(PlayerState.Normal);
     }
     
     // Enter state logic
@@ -492,6 +556,13 @@ public class Player : MonoBehaviour
         
         // Set Washington as child of player
         washingtonTransform.SetParent(transform);
+
+        // Disable Washington's rigidbody while attached
+        Rigidbody2D washingtonRb = washingtonTransform.GetComponent<Rigidbody2D>();
+        if (washingtonRb != null)
+        {
+            washingtonRb.simulated = false;
+        }
         
         // Set local position and rotation based on current state
         switch (currentState)
@@ -529,6 +600,13 @@ public class Player : MonoBehaviour
                 if (washingtonTransform != null && washingtonTransform.parent == transform)
                 {
                     washingtonTransform.SetParent(null);
+
+                    // Re-enable Washington's rigidbody
+                    Rigidbody2D washingtonRb = washingtonTransform.GetComponent<Rigidbody2D>();
+                    if (washingtonRb != null)
+                    {
+                        washingtonRb.simulated = true;
+                    }
                 }
                 break;
         }

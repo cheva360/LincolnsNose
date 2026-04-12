@@ -65,8 +65,12 @@ public class NoseJobMenu : MonoBehaviour
 
     public void ConfirmJob()
     {
-        // update player
-        _gameController.SetPlayerNoseJob(_noseJob);
+        // Only allow transformation if a nose job was selected
+        if (_noseJob > 0)
+        {
+            // update player state
+            _gameController.SetPlayerNoseJob(_noseJob);
+        }
 
         // use event so that other listeners are called
         _gameController.ToggleNoseJobMenu(false);
@@ -110,8 +114,8 @@ public class NoseJobMenu : MonoBehaviour
             _finished = true;
             _noseJob = _rotState + 1;
             
-            // Close menu after delay
-            StartCoroutine(CloseMenuAfterDelay());
+            // Auto-close and confirm after delay
+            StartCoroutine(AutoConfirmAfterDelay());
         }
         else
         {
@@ -127,10 +131,10 @@ public class NoseJobMenu : MonoBehaviour
         _dragNose.eulerAngles = new Vector3(0, 0, _noseRotation);
     }
 
-    private IEnumerator CloseMenuAfterDelay()
+    private IEnumerator AutoConfirmAfterDelay()
     {
         yield return new WaitForSeconds(timeTillMenuClose);
-        _noseJobPanel.SetActive(false);
+        ConfirmJob();
     }
 
 }

@@ -41,8 +41,6 @@ public class GameController : MonoBehaviour
 
         Instance = this;
         DontDestroyOnLoad(gameObject);
-        
-
     }
 
     void Start()
@@ -53,6 +51,15 @@ public class GameController : MonoBehaviour
         }
     }
 
+    // Register player reference (called from Player.Start)
+    public void RegisterPlayer(Player player)
+    {
+        playerScript = player;
+        if (_activeCheckpoint == Vector3.zero)
+        {
+            _activeCheckpoint = playerScript.transform.position;
+        }
+    }
 
     public void ToggleMouseLock(bool isLocked)
     {
@@ -90,7 +97,10 @@ public class GameController : MonoBehaviour
 
         // set state on player from supplied int
         Player.PlayerState newstate = (Player.PlayerState)noseJob;
-        playerScript.SetState(newstate);
+        if (playerScript != null)
+        {
+            playerScript.SetState(newstate);
+        }
     }
 
     /// <summary>
