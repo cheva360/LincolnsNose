@@ -51,7 +51,7 @@ public class MainMenu : MonoBehaviour
 
         _introPlayer.Play();
 
-        _gameController.GotoLevelScene(17f);
+        _gameController.GotoLevelScene(19f);
     }
 
     public void SkipIntro()

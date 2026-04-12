@@ -2,12 +2,7 @@
 
 public class PlayerAnimationEvents : MonoBehaviour
 {
-    private Player player;
-
-    void Awake()
-    {
-        player = GetComponentInParent<Player>();
-    }
+    public Player player;
 
     // Called by animation event "PlayCircle"
     public void PlayCircle()
