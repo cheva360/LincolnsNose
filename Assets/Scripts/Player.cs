@@ -52,9 +52,15 @@ public class Player : MonoBehaviour
     [SerializeField] private Color cannotJumpColor = Color.grey;
     [SerializeField] private float joystickSnapDuration = 0.1f; // Duration for snap back animation
     [SerializeField] private GameObject rockVFX;
+    [SerializeField] private GameObject transformationVFX;
 
     [Header("Animator")]
     [SerializeField] private Animator animator;
+
+    [Header("Transformation")]
+    [SerializeField] private float transformationRotationDuration = 0.3f; // Duration to lerp rotation to 0
+    [SerializeField] private float transformationYLerpDuration = 0.5f; // Duration to lerp position up
+    [SerializeField] private float lerpYoffset = 1f; // Vertical offset for transformation movement
 
     [Header("Hard Landing")]
     [SerializeField] private float hardLandingVelocity = -7f;
@@ -76,6 +82,7 @@ public class Player : MonoBehaviour
     private Vector2 velocityBeforeCollision;
     private float angularVelocityBeforeCollision;
     private TrailRenderer playerTrail;
+    private bool isSoftLandSoundPlaying = false;
     
     // State Machine Variables
     private PlayerState currentState = PlayerState.Normal;
@@ -86,6 +93,12 @@ public class Player : MonoBehaviour
     private bool isCharging = false;
     private bool isGrounded = false;
     private bool hasUsedAerialAbility = false; // Track if aerial ability has been used
+    
+    // Transformation variables
+    private bool isTransforming = false;
+    private float transformationTimer = 0f;
+    private Vector2 transformationStartPosition;
+    private Vector2 transformationTargetPosition;
     
     
     // Start is called before the first frame update
@@ -150,6 +163,12 @@ public class Player : MonoBehaviour
         UpdateSpriteColor();
         UpdateTrailRenderer();
         
+        // Handle transformation lerp in Update
+        if (isTransforming)
+        {
+            UpdateTransformationLerp();
+        }
+        
         // State Machine Update
         UpdateState(currentState);
         
@@ -198,10 +217,24 @@ public class Player : MonoBehaviour
             else if (Mathf.Abs(angularVelocityBeforeCollision) > (Mathf.Abs(softLandingAngularVelocity)))
             {
                 Debug.Log("Soft landing detected with angular velocity: " + angularVelocityBeforeCollision + "soft landing" + softLandingAngularVelocity);
-                // Play soft land sound
-                audioSource.PlayOneShot(softLandSound);
+                // Play soft land sound only if not already playing
+                if (!isSoftLandSoundPlaying && softLandSound != null)
+                {
+                    StartCoroutine(PlaySoftLandSound());
+                }
             }
         }
+    }
+    
+    private IEnumerator PlaySoftLandSound()
+    {
+        isSoftLandSoundPlaying = true;
+        audioSource.PlayOneShot(softLandSound);
+        
+        // Wait for the duration of the sound clip
+        yield return new WaitForSeconds(softLandSound.length);
+        
+        isSoftLandSoundPlaying = false;
     }
     
     private void OnCollisionExit2D(Collision2D collision)
@@ -227,19 +260,99 @@ public class Player : MonoBehaviour
     // Enter state logic
     private void EnterState(PlayerState state)
     {
-        // Trigger transformation animation for any state change
-        animator.SetTrigger("Transformation");
-
         switch (state)
         {
             case PlayerState.Normal:
                 break;
             case PlayerState.TShape:
+                StartTransformation();
                 break;
             case PlayerState.Stack:
+                StartTransformation();
                 break;
             case PlayerState.Kite:
+                StartTransformation();
                 break;
+        }
+    }
+
+    // Start transformation sequence: Freeze physics, reset rotation, play animation, then lerp position up
+    private void StartTransformation()
+    {
+        // Disable gravity and freeze rotation during transformation
+        rb.gravityScale = 0f;
+        rb.velocity = Vector2.zero;
+        rb.angularVelocity = 0f;
+        rb.constraints = RigidbodyConstraints2D.FreezeRotation;
+        
+        // Reset rotation to 0
+        transform.rotation = Quaternion.Euler(0f, 0f, 0f);
+        
+        // Play the transformation animation
+        animator.SetTrigger("Transformation");
+        
+        // Store positions for lerp (will start after animation via AnimationEvent)
+        transformationStartPosition = transform.position;
+        transformationTargetPosition = transformationStartPosition + Vector2.up * lerpYoffset;
+    }
+
+    // Called by animation event to begin the Y lerp after animation finishes
+    public void BeginTransformationLerp()
+    {
+        // Update start position to current position (in case animator moved it)
+        transformationStartPosition = transform.position;
+        transformationTargetPosition = transformationStartPosition + Vector2.up * lerpYoffset;
+        
+        isTransforming = true;
+        transformationTimer = 0f;
+        
+        Debug.Log($"Starting Y lerp from {transformationStartPosition} to {transformationTargetPosition}");
+    }
+
+    // Update transformation position lerp
+    private void UpdateTransformationLerp()
+    {
+        transformationTimer += Time.deltaTime;
+        float t = transformationTimer / transformationYLerpDuration;
+        
+        if (t >= 1f)
+        {
+            // Lerp complete
+            transform.position = transformationTargetPosition;
+            isTransforming = false;
+            transformationTimer = 0f;
+            return;
+        }
+        
+        // Lerp position upward
+        transform.position = Vector2.Lerp(transformationStartPosition, transformationTargetPosition, t);
+    }
+
+    // Called by animation event at the end of transformation animation to restore physics
+    public void FinishTransformation()
+    {
+        // Restore gravity
+        rb.gravityScale = 1f;
+        
+        // Restore rotation constraints (allow rotation again)
+        rb.constraints = RigidbodyConstraints2D.None;
+        
+        // Reset velocities
+        rb.velocity = Vector2.zero;
+        rb.angularVelocity = 0f;
+    }
+
+    // Called by animation event "PlayCircle" at the end of transformation animation
+    public void PlayCircle()
+    {
+        if (transformationVFX != null)
+        {
+            transformationVFX.transform.position = transform.position;
+            VisualEffect vfx = transformationVFX.GetComponent<VisualEffect>();
+            if (vfx != null)
+            {
+                vfx.Play();
+            }
         }
     }
     
