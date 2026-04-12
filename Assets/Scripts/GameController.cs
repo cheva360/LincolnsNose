@@ -28,6 +28,11 @@ public class GameController : MonoBehaviour
     private Vector3 _activeCheckpoint;
     public event Trigger PlayerHasDied;
 
+
+    // input actions because they suck
+    [SerializeField] private PlayerInput _playerInput;
+    private InputAction _escAction;
+
     void Awake()
     {
         if (Instance != null && Instance != this)
@@ -46,6 +51,9 @@ public class GameController : MonoBehaviour
         {
             _activeCheckpoint = playerScript.transform.position;
         }
+
+        _escAction = _playerInput.actions.FindAction("Esc");
+        _escAction.performed += OnEsc;
     }
 
     // Register player reference (called from Player.Start)
@@ -153,7 +161,7 @@ public class GameController : MonoBehaviour
         Debug.Log("respawned Player");
     }
 
-    public void Esc(InputAction.CallbackContext context)
+    public void OnEsc(InputAction.CallbackContext context)
     {
         OpenSettings(true);
     }

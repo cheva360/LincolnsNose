@@ -45,9 +45,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a97c99a4540d60d4a973e6afb6bb7537, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  player: {fileID: 9204145874510154998, guid: 0f91fe4e5daa5c8499dad61c7fd26d78, type: 3}
+  player: {fileID: 0}
   _mainMenuSceneID: 0
   _levelSceneID: 1
+  _playerInput: {fileID: 178269406041282659}
 --- !u!114 &178269406041282659
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -61,7 +62,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Actions: {fileID: -944628639613478452, guid: e8c551c33d8a50a4f857bf2beb74cc5d, type: 3}
-  m_NotificationBehavior: 1
+  m_NotificationBehavior: 3
   m_UIInputModule: {fileID: 0}
   m_DeviceLostEvent:
     m_PersistentCalls:
