@@ -101,16 +101,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c0f8c95fcac99634fbc36a46cdf60254, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerState: 0
+  playerState: 3
   forcePower: 15
   maxDragDistance: 4
   mouseSensitivity: 0.05
   torquePower: 4
   maxAngularVelocity: 0.1
   requiredStableTime: 0.2
-  stackChargeRate: 20
-  stackMaxCharge: 10
-  stackForcePower: 7
+  stackChargeRate: 40
+  stackMaxCharge: 8
+  stackForcePower: 10
   kiteChargeRate: 50
   kiteMaxCharge: 10
   kiteForcePower: 4
