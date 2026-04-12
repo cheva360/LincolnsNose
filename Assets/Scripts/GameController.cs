@@ -166,4 +166,9 @@ public class GameController : MonoBehaviour
         OpenSettings(true);
     }
 
+    public void QuitGame()
+    {
+        Application.Quit();
+    }
+
 }
