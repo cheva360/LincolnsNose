@@ -150,7 +150,9 @@ public class GameController : MonoBehaviour
         SceneManager.LoadScene(sceneID);
 
         // find player in scene
+        yield return new WaitForSeconds(0.2f);
         player = GameObject.FindGameObjectWithTag("Player");
+        playerScript = player.GetComponent<Player>();
     }
 
     public void UpdateCheckpoint(Vector3 position)
