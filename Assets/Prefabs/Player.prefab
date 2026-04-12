@@ -160,7 +160,7 @@ MonoBehaviour:
   - {x: -0.06793777, y: -0.20179908, z: 0}
   m_ShapePathHash: 2156650
   m_Mesh: {fileID: 0}
-  m_InstanceId: 37622
+  m_InstanceId: -61228
   m_LocalBounds:
     m_Center: {x: -0.00010070205, y: 0.002786085, z: 0}
     m_Extent: {x: 0.16522971, y: 0.20505106, z: 0}
@@ -278,7 +278,7 @@ MonoBehaviour:
   requiredStableTime: 0.2
   stackChargeRate: 30
   stackMaxCharge: 8
-  stackForcePower: 9
+  stackForcePower: 6
   kiteChargeRate: 50
   kiteMaxCharge: 10
   kiteForcePower: 4
@@ -299,10 +299,10 @@ MonoBehaviour:
   transformationRotationDuration: 0.3
   transformationYLerpDuration: 2
   lerpYoffset: 2
-  maxTransformationWaitTime: 2
+  maxTransformationWaitTime: 0
   hardLandingVelocity: -7
   cameraFollow: {fileID: 0}
-  softLandingAngularVelocity: 150
+  softLandingAngularVelocity: 100
   landSound: {fileID: 8300000, guid: e0b2058032e36ec4f8210f7391bb0bbb, type: 3}
   softLandSound: {fileID: 8300000, guid: e7d4bbf8ebf5954468cbb9252d092828, type: 3}
 --- !u!50 &3521636352751648616
