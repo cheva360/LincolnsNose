@@ -17,6 +17,9 @@ public class GameController : MonoBehaviour
 
     public event SetBool ToggleSettingsMenu;
 
+    public delegate void setBG(Sprite bgSprite);
+    public event setBG UpdateBackground;
+
 
     // settings for scene changing
     [SerializeField] private int _mainMenuSceneID = 0;
@@ -169,6 +172,11 @@ public class GameController : MonoBehaviour
     public void QuitGame()
     {
         Application.Quit();
+    }
+
+    public void SetBackground(Sprite sprite)
+    {
+        UpdateBackground?.Invoke(sprite);
     }
 
 }

@@ -7,6 +7,7 @@ public class CheckPointer : MonoBehaviour
 {
     private GameController _gc;
     [SerializeField] private Transform _spawnTransform;
+    [SerializeField] private Sprite _bgSprite;
 
     // prevent going back in checkpoints
     private bool _passed = false;
@@ -24,6 +25,11 @@ public class CheckPointer : MonoBehaviour
             Debug.Log("valid");
             _gc.UpdateCheckpoint(_spawnTransform.position);
             _passed = true;
+            
+            if (_bgSprite != null)
+            {
+                _gc.SetBackground(_bgSprite);
+            }
         }
     }
 
