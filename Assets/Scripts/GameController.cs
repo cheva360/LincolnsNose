@@ -1,10 +1,7 @@
 using System.Collections;
-using System.Collections.Generic;
-using Unity.Mathematics;
-using Unity.VisualScripting;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.InputSystem;
 
 public class GameController : MonoBehaviour
 {
@@ -154,6 +151,11 @@ public class GameController : MonoBehaviour
         player.transform.position = _activeCheckpoint;
 
         Debug.Log("respawned Player");
+    }
+
+    public void Esc(InputAction.CallbackContext context)
+    {
+        OpenSettings(true);
     }
 
 }
