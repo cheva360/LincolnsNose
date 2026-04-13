@@ -590,6 +590,10 @@ public class Player : MonoBehaviour
         
         Debug.Log($"Transformation finished. hasUsedAerialAbility: {hasUsedAerialAbility}, isGrounded: {isGrounded}");
         
+
+        //set cursor locked
+        Cursor.lockState = CursorLockMode.Locked;
+
         // Attach Washington as child and set position/rotation based on state
         AttachWashington();
     }
