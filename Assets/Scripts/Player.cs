@@ -98,6 +98,7 @@ public class Player : MonoBehaviour
     private float angularVelocityBeforeCollision;
     private TrailRenderer playerTrail;
     private bool isSoftLandSoundPlaying = false;
+    private Coroutine snapCoroutine = null; // Track the snap coroutine
     
     // State Machine Variables
     private PlayerState currentState = PlayerState.Normal;
@@ -451,10 +452,15 @@ public class Player : MonoBehaviour
         EnterState(currentState);
     }
 
-    // Release Washington from being a child (on right-click)
-    private void ReleaseWashington()
+    // PUBLIC METHOD: Release Washington - can be called by UI button or right-click
+    public void ReleaseWashington()
     {
-        if (washingtonTransform == null) return;
+        // Only release if Washington is attached as a child
+        if (washingtonTransform == null || washingtonTransform.parent != transform) 
+        {
+            Debug.Log("Washington is not attached - cannot release");
+            return;
+        }
 
         Debug.Log("Releasing Washington");
 
@@ -783,15 +789,7 @@ public class Player : MonoBehaviour
         // Start dragging (allow even when can't jump for visual feedback)
         if (Input.GetMouseButtonDown(0))
         {
-            isDragging = true;
-            currentDragRadius = 0f;
-            dragDirection = Vector2.zero;
-            
-            if (joystickIndicator != null)
-            {
-                joystickIndicator.gameObject.SetActive(true);
-                joystickIndicator.position = transform.position;
-            }
+            StartDragging();
         }
         
         // Update drag position based on mouse movement
@@ -825,12 +823,7 @@ public class Player : MonoBehaviour
                 ApplyForce();
             }
             
-            isDragging = false;
-            
-            if (joystickIndicator != null)
-            {
-                StartCoroutine(SnapJoystickToNeutral());
-            }
+            FinishDragging();
         }
     }
     
@@ -843,15 +836,7 @@ public class Player : MonoBehaviour
             // Use normal jump logic when grounded
             if (Input.GetMouseButtonDown(0))
             {
-                isDragging = true;
-                currentDragRadius = 0f;
-                dragDirection = Vector2.zero;
-                
-                if (joystickIndicator != null)
-                {
-                    joystickIndicator.gameObject.SetActive(true);
-                    joystickIndicator.position = transform.position;
-                }
+                StartDragging();
             }
             
             if (Input.GetMouseButton(0) && isDragging)
@@ -874,11 +859,7 @@ public class Player : MonoBehaviour
                 {
                     ApplyForce();
                 }
-                isDragging = false;
-                if (joystickIndicator != null)
-                {
-                    StartCoroutine(SnapJoystickToNeutral());
-                }
+                FinishDragging();
             }
             return;
         }
@@ -890,14 +871,8 @@ public class Player : MonoBehaviour
             {
                 isCharging = true;
                 currentCharge = 0f;
-                isDragging = true;
+                StartDragging();
                 dragDirection = Vector2.down; // Start pointing down
-                
-                if (joystickIndicator != null)
-                {
-                    joystickIndicator.gameObject.SetActive(true);
-                    joystickIndicator.position = transform.position;
-                }
             }
             
             if (Input.GetMouseButton(0) && isCharging)
@@ -921,13 +896,9 @@ public class Player : MonoBehaviour
                 hasUsedAerialAbility = true;
                 
                 isCharging = false;
-                isDragging = false;
                 currentCharge = 0f;
                 
-                if (joystickIndicator != null)
-                {
-                    StartCoroutine(SnapJoystickToNeutral());
-                }
+                FinishDragging();
             }
         }
         // Aerial ability already used - revert to normal drag behavior (no force applied)
@@ -935,15 +906,7 @@ public class Player : MonoBehaviour
         {
             if (Input.GetMouseButtonDown(0))
             {
-                isDragging = true;
-                currentDragRadius = 0f;
-                dragDirection = Vector2.zero;
-                
-                if (joystickIndicator != null)
-                {
-                    joystickIndicator.gameObject.SetActive(true);
-                    joystickIndicator.position = transform.position;
-                }
+                StartDragging();
             }
             
             if (Input.GetMouseButton(0) && isDragging)
@@ -963,11 +926,7 @@ public class Player : MonoBehaviour
             if (Input.GetMouseButtonUp(0) && isDragging)
             {
                 // Don't apply force - ability already used
-                isDragging = false;
-                if (joystickIndicator != null)
-                {
-                    StartCoroutine(SnapJoystickToNeutral());
-                }
+                FinishDragging();
             }
         }
     }
@@ -981,15 +940,7 @@ public class Player : MonoBehaviour
             // Use normal jump logic when grounded
             if (Input.GetMouseButtonDown(0))
             {
-                isDragging = true;
-                currentDragRadius = 0f;
-                dragDirection = Vector2.zero;
-                
-                if (joystickIndicator != null)
-                {
-                    joystickIndicator.gameObject.SetActive(true);
-                    joystickIndicator.position = transform.position;
-                }
+                StartDragging();
             }
             
             if (Input.GetMouseButton(0) && isDragging)
@@ -1012,11 +963,7 @@ public class Player : MonoBehaviour
                 {
                     ApplyForce();
                 }
-                isDragging = false;
-                if (joystickIndicator != null)
-                {
-                    StartCoroutine(SnapJoystickToNeutral());
-                }
+                FinishDragging();
             }
             return;
         }
@@ -1028,14 +975,7 @@ public class Player : MonoBehaviour
             {
                 isCharging = true;
                 currentCharge = 0f;
-                isDragging = true;
-                dragDirection = Vector2.zero;
-                
-                if (joystickIndicator != null)
-                {
-                    joystickIndicator.gameObject.SetActive(true);
-                    joystickIndicator.position = transform.position;
-                }
+                StartDragging();
             }
             
             if (Input.GetMouseButton(0) && isCharging)
@@ -1070,13 +1010,9 @@ public class Player : MonoBehaviour
                 hasUsedAerialAbility = true;
                 
                 isCharging = false;
-                isDragging = false;
                 currentCharge = 0f;
                 
-                if (joystickIndicator != null)
-                {
-                    StartCoroutine(SnapJoystickToNeutral());
-                }
+                FinishDragging();
             }
         }
         // Aerial ability already used - revert to normal drag behavior (no force applied)
@@ -1084,15 +1020,7 @@ public class Player : MonoBehaviour
         {
             if (Input.GetMouseButtonDown(0))
             {
-                isDragging = true;
-                currentDragRadius = 0f;
-                dragDirection = Vector2.zero;
-                
-                if (joystickIndicator != null)
-                {
-                    joystickIndicator.gameObject.SetActive(true);
-                    joystickIndicator.position = transform.position;
-                }
+                StartDragging();
             }
             
             if (Input.GetMouseButton(0) && isDragging)
@@ -1112,11 +1040,7 @@ public class Player : MonoBehaviour
             if (Input.GetMouseButtonUp(0) && isDragging)
             {
                 // Don't apply force - ability already used
-                isDragging = false;
-                if (joystickIndicator != null)
-                {
-                    StartCoroutine(SnapJoystickToNeutral());
-                }
+                FinishDragging();
             }
         }
     }
@@ -1130,15 +1054,7 @@ public class Player : MonoBehaviour
             // Use normal jump logic when grounded
             if (Input.GetMouseButtonDown(0))
             {
-                isDragging = true;
-                currentDragRadius = 0f;
-                dragDirection = Vector2.zero;
-                
-                if (joystickIndicator != null)
-                {
-                    joystickIndicator.gameObject.SetActive(true);
-                    joystickIndicator.position = transform.position;
-                }
+                StartDragging();
             }
             
             if (Input.GetMouseButton(0) && isDragging)
@@ -1161,11 +1077,7 @@ public class Player : MonoBehaviour
                 {
                     ApplyForce();
                 }
-                isDragging = false;
-                if (joystickIndicator != null)
-                {
-                    StartCoroutine(SnapJoystickToNeutral());
-                }
+                FinishDragging();
             }
             return;
         }
@@ -1177,14 +1089,7 @@ public class Player : MonoBehaviour
             {
                 isCharging = true;
                 currentCharge = 0f;
-                isDragging = true;
-                dragDirection = Vector2.zero;
-                
-                if (joystickIndicator != null)
-                {
-                    joystickIndicator.gameObject.SetActive(true);
-                    joystickIndicator.position = transform.position;
-                }
+                StartDragging();
             }
             
             if (Input.GetMouseButton(0) && isCharging)
@@ -1228,13 +1133,9 @@ public class Player : MonoBehaviour
                 hasUsedAerialAbility = true;
                 
                 isCharging = false;
-                isDragging = false;
                 currentCharge = 0f;
                 
-                if (joystickIndicator != null)
-                {
-                    StartCoroutine(SnapJoystickToNeutral());
-                }
+                FinishDragging();
             }
         }
         // Aerial ability already used - revert to normal drag behavior (no force applied)
@@ -1242,15 +1143,7 @@ public class Player : MonoBehaviour
         {
             if (Input.GetMouseButtonDown(0))
             {
-                isDragging = true;
-                currentDragRadius = 0f;
-                dragDirection = Vector2.zero;
-                
-                if (joystickIndicator != null)
-                {
-                    joystickIndicator.gameObject.SetActive(true);
-                    joystickIndicator.position = transform.position;
-                }
+                StartDragging();
             }
             
             if (Input.GetMouseButton(0) && isDragging)
@@ -1270,11 +1163,7 @@ public class Player : MonoBehaviour
             if (Input.GetMouseButtonUp(0) && isDragging)
             {
                 // Don't apply force - ability already used
-                isDragging = false;
-                if (joystickIndicator != null)
-                {
-                    StartCoroutine(SnapJoystickToNeutral());
-                }
+                FinishDragging();
             }
         }
     }
@@ -1292,6 +1181,38 @@ public class Player : MonoBehaviour
                 Destroy(col.gameObject);
                 // You can add VFX or sound here
             }
+        }
+    }
+    
+    // Helper method to start dragging and cancel any snap animation
+    private void StartDragging()
+    {
+        // Stop any running snap coroutine
+        if (snapCoroutine != null)
+        {
+            StopCoroutine(snapCoroutine);
+            snapCoroutine = null;
+        }
+        
+        isDragging = true;
+        currentDragRadius = 0f;
+        dragDirection = Vector2.zero;
+        
+        if (joystickIndicator != null)
+        {
+            joystickIndicator.gameObject.SetActive(true);
+            joystickIndicator.position = transform.position;
+        }
+    }
+    
+    // Helper method to finish dragging and start snap animation
+    private void FinishDragging()
+    {
+        isDragging = false;
+        
+        if (joystickIndicator != null)
+        {
+            snapCoroutine = StartCoroutine(SnapJoystickToNeutral());
         }
     }
     
@@ -1322,6 +1243,9 @@ public class Player : MonoBehaviour
         
         // Deactivate joystick
         joystickIndicator.gameObject.SetActive(false);
+        
+        // Clear reference since coroutine is complete
+        snapCoroutine = null;
     }
     
     private void ApplyForce()

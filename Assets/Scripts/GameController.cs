@@ -133,7 +133,7 @@ public class GameController : MonoBehaviour
         SceneChangeTrigger?.Invoke();
         // call scene change on delay
         StartCoroutine(ChangeScene(delay, _levelSceneID));
-        menu.SetActive(false);
+        //menu.SetActive(false);
     }
 
     public void GotoMenuScene(float delay)
@@ -148,6 +148,10 @@ public class GameController : MonoBehaviour
     {
         // call on delay to allow other code to finish executing
         yield return new WaitForSeconds(waitTime);
+
+        //disable menu
+        menu.SetActive(false);
+
 
         // change scene on exit
         SceneManager.LoadScene(sceneID);
