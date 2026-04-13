@@ -18,7 +18,7 @@ public class mobileButton : MonoBehaviour
         // Disable button if not on a mobile device
         if (!isMobile && button != null)
         {
-            //button.gameObject.SetActive(false);
+            button.gameObject.SetActive(false);
         }
 #endif
     }
