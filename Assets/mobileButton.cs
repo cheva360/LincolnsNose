@@ -18,9 +18,24 @@ public class mobileButton : MonoBehaviour
         // Disable button if not on a mobile device
         if (!isMobile && button != null)
         {
-            button.gameObject.SetActive(false);
+            //button.gameObject.SetActive(false);
         }
 #endif
+    }
+
+    public void OnButtonClick()
+    {
+        Debug.Log("Mobile button clicked!");
+        
+        // Call ReleaseWashington on the player
+        if (GameController.Instance != null && GameController.Instance.playerScript != null)
+        {
+            GameController.Instance.playerScript.ReleaseWashington();
+        }
+        else
+        {
+            Debug.LogError("Cannot release Washington - GameController or Player is null!");
+        }
     }
 
     // Update is called once per frame
