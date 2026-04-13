@@ -126,12 +126,14 @@ public class GameController : MonoBehaviour
         ToggleMouseLock(!isVisable);
     }
 
+    [SerializeField] private GameObject menu;
+
     public void GotoLevelScene(float delay)
     {
         SceneChangeTrigger?.Invoke();
         // call scene change on delay
         StartCoroutine(ChangeScene(delay, _levelSceneID));
-
+        menu.SetActive(false);
     }
 
     public void GotoMenuScene(float delay)
@@ -139,6 +141,7 @@ public class GameController : MonoBehaviour
         SceneChangeTrigger?.Invoke();
         // call scene change on delay
         StartCoroutine(ChangeScene(delay, _mainMenuSceneID));
+        menu.SetActive(true);
     }
 
     private IEnumerator ChangeScene(float waitTime, int sceneID)
