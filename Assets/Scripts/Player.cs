@@ -83,6 +83,7 @@ public class Player : MonoBehaviour
     [Header("Audio")]
     [SerializeField] private AudioClip landSound;
     [SerializeField] private AudioClip softLandSound;
+    [SerializeField] private AudioClip transformSound;
     private AudioSource audioSource;
 
     private Rigidbody2D rb;
@@ -491,7 +492,9 @@ public class Player : MonoBehaviour
     private void StartTransformation()
     {
         //Debug.Log("StartTransformation called");
-        
+        //play transformation sound
+        audioSource.PlayOneShot(transformSound);
+
         // Disable player collider during transformation
         playerCollider.enabled = false;
         landingVFX.transform.position = washingtonTransform.position;
