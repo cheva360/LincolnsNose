@@ -21,7 +21,6 @@ public class CameraFollow : MonoBehaviour
     [SerializeField] private float maxZoomin = 7.5f;
     [SerializeField] private float zoomStep = 0.5f;
     [SerializeField] private float zoomSpeed = 5f;
-    private float currentZoom = 8.5f;
     private float targetZoom = 8.5f;
 
 

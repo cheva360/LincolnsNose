@@ -27,7 +27,6 @@ public class Player : MonoBehaviour
     [SerializeField] private Transform washingtonTransform;
     [SerializeField] private SpriteRenderer washingtonSpriteRenderer;
     [SerializeField] private float menuCooldownTime = 2f; // Time in seconds before menu can be opened again
-    private bool isCollidingWithWashington = false;
     private float menuCooldownTimer = 0f;
     private bool canOpenMenu = true;
     private bool isNoseJobMenuActive = false; // Track if nose job menu is open
@@ -69,7 +68,6 @@ public class Player : MonoBehaviour
     [SerializeField] private Animator animator;
 
     [Header("Transformation")]
-    [SerializeField] private float transformationRotationDuration = 0.3f; // Duration to lerp rotation to 0
     [SerializeField] private float transformationYLerpDuration = 0.5f; // Duration to lerp position up
     [SerializeField] private float lerpYoffset = 1f; // Vertical offset for transformation movement
     [SerializeField] private float transformationCompletionDelay = 2.25f; // Time before PlayCircle and FinishTransformation are called
@@ -113,9 +111,7 @@ public class Player : MonoBehaviour
     
     // Transformation variables
     private bool isTransforming = false;
-    private bool waitingForLerpToStart = false;
     private float transformationTimer = 0f;
-    private float transformationWaitTimer = 0f;
     private Vector2 transformationStartPosition;
     private Vector2 transformationTargetPosition;
     
@@ -387,7 +383,6 @@ public class Player : MonoBehaviour
         // This prevents duplicate detection from WashingtonCollider script
         if (isPlayerCollider && collision.gameObject.CompareTag("Washington") && currentState == PlayerState.Normal && canOpenMenu)
         {
-            isCollidingWithWashington = true;
             Debug.Log("Player collided with Washington! Opening menu and freezing player...");
             // Open nose job menu (this will trigger FreezePlayer via event)
             if (GameController.Instance != null)
@@ -420,12 +415,6 @@ public class Player : MonoBehaviour
                 groundContactCount = 0;
                 isGrounded = false;
             }
-        }
-
-        // Track when leaving Washington collision
-        if (collision.gameObject.CompareTag("Washington") && isPlayerCollider)
-        {
-            isCollidingWithWashington = false;
         }
     }
     
@@ -527,7 +516,6 @@ public class Player : MonoBehaviour
         // Start lerping immediately (during animation)
         isTransforming = true;
         transformationTimer = 0f;
-        waitingForLerpToStart = false;
         
         // Start the timed transformation completion coroutine
         StartCoroutine(CompleteTransformationAfterDelay());
@@ -888,6 +876,9 @@ public class Player : MonoBehaviour
             
             if (Input.GetMouseButtonUp(0) && isCharging)
             {
+                // Reset vertical velocity to 0 before applying force
+                rb.velocity = new Vector2(rb.velocity.x, 0f);
+                
                 // Apply vertical force based on charge
                 Vector2 verticalForce = Vector2.up * currentCharge * stackForcePower;
                 rb.AddForce(verticalForce, ForceMode2D.Impulse);
@@ -996,9 +987,9 @@ public class Player : MonoBehaviour
                 
                 currentDragRadius = Mathf.Abs(dragDirection.x);
             }
-            
+            //hi
             if (Input.GetMouseButtonUp(0) && isCharging)
-            {
+            {   
                 // Apply horizontal force based on charge and direction (opposite of drag direction)
                 float direction = -Mathf.Sign(dragDirection.x);
                 if (dragDirection.x == 0f) direction = 0f; // Handle no direction case

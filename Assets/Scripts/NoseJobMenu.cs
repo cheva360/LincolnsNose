@@ -28,8 +28,6 @@ public class NoseJobMenu : MonoBehaviour
     private int _rotState = 0;
 
     [SerializeField] private float _rotTweenSpeed = 70;
-    private bool _finished = false;
-
 
     void Start()
     {
@@ -80,8 +78,6 @@ public class NoseJobMenu : MonoBehaviour
     {
         // move back to _noneAnchor
         _dragNose.position = _noneAnchor.position;
-        _finished = false;
-
         _targetRotation -= 90;
         _rotState += 1;
 
@@ -111,7 +107,6 @@ public class NoseJobMenu : MonoBehaviour
         if (Vector3.Distance(_activeAnchor, nose.position) < _maxSnapDist)
         {
             nose.position = _activeAnchor;
-            _finished = true;
             _noseJob = _rotState + 1;
         }
         else
